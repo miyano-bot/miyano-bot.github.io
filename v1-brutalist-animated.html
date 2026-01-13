@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIYANO BOT // PRODUCT DESIGN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Syne', sans-serif;
+            cursor: none; /* Hide default cursor */
+            background-color: #f8f8f8;
+            background-image: radial-gradient(#ccc 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow-x: hidden;
+        }
+
+        /* Animated Trail System */
+        .trail-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: #000;
+            pointer-events: none;
+            z-index: 9998;
+            border-radius: 0%; /* Brutalist square dots */
+        }
+
+        #main-cursor {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .viewfinder {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            background: white;
+            transition: width 0.2s, height 0.2s, border-color 0.2s;
+        }
+
+        .viewfinder::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: #ff00ff;
+        }
+
+        .cursor-data {
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier Prime', monospace;
+            font-size: 9px;
+            padding: 2px 6px;
+            font-weight: bold;
+            white-space: nowrap;
+            letter-spacing: 1px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+            position: absolute;
+            transform: translate(16px, 16px);
+        }
+
+        .font-mono {
+            font-family: 'Courier Prime', monospace;
+        }
+        .sticker {
+            position: absolute;
+            transform: rotate(var(--r, 0deg));
+            z-index: 20;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+        }
+        .brutalist-card {
+            border: 4px solid #000;
+            box-shadow: 8px 8px 0px #000;
+            transition: all 0.2s;
+        }
+        .brutalist-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 12px 12px 0px #000;
+        }
+        .marquee-container {
+            border-bottom: 3px solid #000;
+            background: #00ff00;
+            color: #000;
+            font-family: 'Courier Prime', monospace;
+            font-weight: bold;
+            padding: 4px 0;
+        }
+        .glitch-hover:hover {
+            text-shadow: 3px 3px 0px #00ff00, -3px -3px 0px #ff00ff;
+        }
+        ::selection {
+            background: #000;
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body class="pb-32">
+    <!-- Animated Trail Cursor -->
+    <div id="trail-container"></div>
+    <div id="main-cursor">
+        <div class="viewfinder"></div>
+        <div class="cursor-data" id="cursor-info">X:000 Y:000</div>
+    </div>
+
+    <!-- Marquee Banner -->
+    <div class="marquee-container fixed top-0 w-full z-50">
+        <marquee scrollamount="12">
+            *** DESIGN IS MESSY *** FORM FOLLOWS FEELING *** NO MORE CORPORATE MEMPHIS *** MAKING INTERNET FUN AGAIN ***
+        </marquee>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="max-w-5xl mx-auto mt-24 px-4 md:px-8 relative z-10">
+        <div class="relative py-8 md:py-24">
+            <div class="sticker bg-yellow-400 text-black font-bold px-2 py-1 text-xs md:text-base border-2 border-black -top-4 right-4 md:right-20" style="--r: 12deg">Available for work</div>
+            <div class="sticker text-4xl md:text-8xl text-pink-500 opacity-20 font-black top-20 left-4 z-0 pointer-events-none" style="--r: -5deg">CHAOS</div>
+
+            <div class="relative z-10 bg-white border-4 border-black p-6 md:p-12 shadow-[12px_12px_0px_#ff00ff] md:shadow-[16px_16px_0px_#ff00ff]">
+                <h1 class="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold leading-[0.8] tracking-tight mb-8 mix-blend-multiply">
+                    PRODUCT<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 glitch-hover">DESIGN</span>
+                </h1>
+                <div class="w-full md:w-2/3 border-l-4 border-blue-600 pl-4 md:pl-6 space-y-4">
+                    <p class="text-lg md:text-2xl font-bold font-mono leading-tight">
+                        I turn complex problems into experiences people actually remember.
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-4 mt-8">
+                    <a href="#projects" class="bg-black text-white px-6 py-3 md:px-8 md:py-4 font-bold text-lg md:text-xl">SEE WORK ↓</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="projects" class="space-y-24 md:space-y-32 my-24">
+            <div class="relative">
+                <div class="grid md:grid-cols-12 gap-6 relative z-10">
+                    <div class="md:col-span-7 brutalist-card bg-blue-600 p-6 md:p-8 text-white flex flex-col justify-between min-h-[400px]">
+                        <div>
+                            <span class="border border-white px-2 py-1 text-xs font-mono mb-4 inline-block">PERFORMANCE / UX</span>
+                            <h2 class="text-3xl md:text-6xl font-black uppercase mb-4 leading-none">Algar<br>Telecom</h2>
+                        </div>
+                        <a href="algar.html" class="mt-8 self-start bg-white text-blue-900 px-6 py-2 font-bold border-2 border-black shadow-[4px_4px_0px_#000]">CASE STUDY &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mainCursor = document.getElementById('main-cursor');
+        const cInfo = document.getElementById('cursor-info');
+        const trailContainer = document.getElementById('trail-container');
+        const dots = [];
+        const dotCount = 12;
+        const positions = [];
+        for (let i = 0; i < dotCount; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'trail-dot';
+            dot.style.opacity = 1 - (i / dotCount);
+            dot.style.scale = 1 - (i / dotCount);
+            trailContainer.appendChild(dot);
+            dots.push(dot);
+        }
+        let mouseX = 0, mouseY = 0, currentX = 0, currentY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX; mouseY = e.clientY;
+            cInfo.innerText = `X:${Math.round(mouseX)} Y:${Math.round(mouseY)} [${e.target.tagName}]`;
+        });
+        function animate() {
+            currentX += (mouseX - currentX) * 0.25;
+            currentY += (mouseY - currentY) * 0.25;
+            mainCursor.style.left = `${currentX}px`;
+            mainCursor.style.top = `${currentY}px`;
+            positions.unshift({ x: mouseX, y: mouseY });
+            if (positions.length > dotCount * 3) positions.pop();
+            dots.forEach((dot, i) => {
+                const posIndex = i * 2;
+                const pos = positions[posIndex] || positions[positions.length - 1];
+                if (pos) { dot.style.left = `${pos.x - 4}px`; dot.style.top = `${pos.y - 4}px`; }
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+        document.querySelectorAll('a').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                mainCursor.querySelector('.viewfinder').style.width = '40px';
+                mainCursor.querySelector('.viewfinder').style.height = '40px';
+                mainCursor.querySelector('.viewfinder').style.borderColor = '#ff00ff';
+                dots.forEach(dot => dot.style.background = '#ff00ff');
+            });
+            el.addEventListener('mouseleave', () => {
+                mainCursor.querySelector('.viewfinder').style.width = '24px';
+                mainCursor.querySelector('.viewfinder').style.height = '24px';
+                mainCursor.querySelector('.viewfinder').style.borderColor = '#000';
+                dots.forEach(dot => dot.style.background = '#000');
+            });
+        });
+    </script>
+</body>
+</html>

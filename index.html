@@ -1,1 +1,951 @@
-"Hello World"
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIYANO // PRODUCT_DESIGN</title>
+    <meta name="description" content="Product Design com foco em impacto: casos Algar Telecom e Volpi com métricas, pesquisa e execução." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+        "three/": "https://unpkg.com/three@0.128.0/"
+      }
+    }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --surface: #0f0f0f;
+            --accent: #00ff88; /* Bright Green */
+            --accent-glow: rgba(0, 255, 136, 0.3);
+            --text-main: #ffffff;
+            --text-dim: #888;
+            --border: #222;
+            --font-main: 'Inter', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Floating Nav - Optimized */
+        .hud-nav {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+        .hud-nav:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 12px;
+            border-right: 1px solid var(--border);
+        }
+        .logo-mark {
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+        .logo-text {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--text-main);
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            padding: 0 8px;
+        }
+
+        .hud-link {
+            font-family: 'JetBrains Mono';
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            padding: 8px 16px;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .hud-link:hover { color: var(--accent); }
+
+        /* Grid Layout */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Hero */
+        .hero-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+        .hero-title {
+            font-family: 'JetBrains Mono';
+            font-size: 6vw;
+            line-height: 0.9;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+        .badge {
+            display: inline-block;
+            border: 1px solid var(--border);
+            padding: 4px 8px;
+            font-size: 10px;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+            margin-bottom: 24px;
+            font-family: 'JetBrains Mono';
+        }
+
+        /* Works Grid - With Tilt */
+        .work-item {
+            grid-column: span 4;
+            margin-bottom: 80px;
+            cursor: pointer;
+            perspective: 1000px; /* Essential for 3D tilt */
+        }
+        .work-img-box {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #0d0d0d;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            transform-style: preserve-3d;
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+            position: relative;
+        }
+        .work-item:hover .work-img-box {
+            border-color: var(--accent);
+            transform: translateY(-8px) rotateX(6deg); /* Tilt back only */
+            box-shadow: -10px 12px 24px rgba(0,0,0,0.45), 0 0 18px var(--accent-glow);
+        }
+        
+        /* Scanline effect overlay */
+        .work-img-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.2) 3px
+            );
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .work-title {
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+        .work-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+            max-width: 90%;
+        }
+
+
+
+        /* Node Graph */
+        #node-graph-viz {
+            width: 100%;
+            height: 800px;
+            background: transparent;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .graph-loading {
+            font-family: 'JetBrains Mono';
+            font-size: 12px;
+            color: var(--accent);
+            letter-spacing: 0.1em;
+        }
+
+        #bg-canvas {
+            position: absolute;
+            top: 0; right: 0; width: 100%; height: 100%;
+            z-index: 0;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 140px 40px; /* Bigger contact area */
+            background: #050505;
+        }
+
+        footer .grid-container { display: flex; align-items: center; justify-content: center; }
+        footer .contact-inner { text-align: center; max-width: 880px; margin: 0 auto; }
+        .contact-cta-row { display:flex; gap:16px; align-items:center; justify-content:center; margin-top:18px; }
+
+        .btn-primary {
+            padding: 12px 22px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #00ff88, #00d18f);
+            color: #012;
+            font-weight: 700;
+            box-shadow: 0 8px 30px var(--accent-glow);
+            border: none;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+            text-decoration: none;
+            display:inline-flex;
+            align-items:center;
+            gap:10px;
+        }
+        .btn-primary:hover { transform: translateY(-4px); box-shadow: 0 14px 40px var(--accent-glow); opacity:0.95; }
+
+        .contact-btn { display: inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:8px; background: rgba(255,255,255,0.02); border:1px solid var(--border); transition: transform 0.18s ease, box-shadow 0.18s ease; color: var(--accent); }
+        .contact-btn:hover { transform: translateY(-4px); box-shadow: 0 8px 30px var(--accent-glow); background: rgba(255,255,255,0.03); }
+        .contact-btn svg { width:18px; height:18px; fill:currentColor; }
+
+        @media (max-width: 768px) {
+            .work-item { grid-column: span 12; }
+            .hero-title { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="hud-nav">
+        <div class="logo-box">
+            <div class="logo-mark"></div>
+            <span class="logo-text mono">MIYANO // ARCHIVE</span>
+        </div>
+        <div class="nav-links">
+            <a href="#" class="hud-link">Sistema</a>
+            <a href="#work" class="hud-link">Cases</a>
+            <a href="#contact" class="hud-link">Contato</a>
+        </div>
+    </nav>
+
+    <main class="relative z-10">
+        <!-- Hero -->
+        <section class="hero-section">
+            <div id="bg-canvas"></div>
+            <div class="grid-container w-full relative z-10 pointer-events-none">
+                <div class="col-span-12 md:col-span-8 pointer-events-auto">
+                    <div class="badge mono">PRODUCT_DESIGN • UX_RESEARCH • UI</div>
+                    <h1 class="hero-title">
+                        DESIGN <br>
+                        QUE PERFORMA
+                    </h1>
+                    <p class="mt-8 text-neutral-500 max-w-md text-sm leading-6">
+                        Eu desenho e entrego fluxos críticos com foco em clareza, performance e métricas.
+                        <span class="text-neutral-400">1.9→3.0 (rating), -40% tempo, +35% conversão, NPS +47.</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects -->
+        <section id="work" class="py-24 border-t border-white/5">
+            <div class="grid-container">
+                <div class="col-span-12 mb-20">
+                    <h2 class="mono text-xs text-neutral-500 tracking-[0.2em] uppercase">// WORKS_REPOSITORY</h2>
+                </div>
+
+                <!-- Case Study: Algar Telecom (replaced) -->
+                <div class="col-span-12 md:col-span-4 work-item">
+                    <a href="cases/algar.html" class="block">
+                        <div class="work-img-box aspect-square bg-[#07101a] border border-white/10 flex items-center justify-center overflow-hidden">
+                            <span class="mono text-[10px] text-neutral-600">[CASE_ALGAR]</span>
+                        </div>
+                        <h3 class="work-title">Algar Telecom — Fix the Basics</h3>
+                        <p class="work-desc">Redesenho dos fluxos críticos (Login e Pagamento). Resultado: rating 1.9→~3.0, maior taxa de sucesso de pagamento e redução de chamados ao suporte.</p>
+                    </a>
+                </div>
+
+                <!-- Case Study: Volpi (replaced) -->
+                <div class="col-span-12 md:col-span-4 work-item">
+                    <a href="cases/volpi.html" class="block">
+                        <div class="work-img-box aspect-square bg-[#071018] border border-white/10 flex items-center justify-center overflow-hidden">
+                            <span class="mono text-[10px] text-neutral-600">[CASE_VOLPI]</span>
+                        </div>
+                        <h3 class="work-title">Volpi — Transparência Radical</h3>
+                        <p class="work-desc">Plataforma de financiamento com timeline, docs inteligentes e simulador progressivo. Resultado: -40% no tempo do processo, +35% em conversão e NPS +47.</p>
+                    </a>
+                </div>
+
+                <div class="col-span-12 md:col-span-4 work-item">
+                    <div class="work-img-box aspect-square bg-[#0a0a0a] border border-white/10 flex items-center justify-center overflow-hidden">
+                        <span class="mono text-[10px] text-neutral-600">[AUTH_SYSTEM_03]</span>
+                    </div>
+                    <h3 class="work-title">Spatial Auth (Concept)</h3>
+                    <p class="work-desc">Exploração de autenticação “next-gen” com gestos espaciais e padrões volumétricos (projeto conceito).</p>
+                </div>
+
+
+            </div>
+        </section>
+
+
+
+        <!-- Systems Thinking -->
+        <section class="py-32 border-t border-white/5">
+            <div class="grid-container">
+                <div class="col-span-12 text-center mb-16">
+                    <h2 class="mono text-xs text-neutral-500 tracking-[0.2em] uppercase mb-8">// SYSTEMS_THINKING</h2>
+                    <blockquote class="text-xl md:text-2xl text-neutral-200 font-light max-w-3xl mx-auto leading-relaxed">
+                        "THE SYSTEM IS MORE THAN THE SUM OF ITS PARTS. <br>
+                        <span class="text-neutral-500">IT IS THE PRODUCT OF THEIR INTERACTIONS."</span>
+                    </blockquote>
+                </div>
+                <div class="col-span-12">
+                    <div id="node-graph-viz">
+                        <div class="graph-loading">[INITIALIZING_GRAPH...]</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact/Footer -->
+        <footer id="contact">
+            <div class="grid-container">
+                <div class="col-span-12 contact-inner">
+                    <h2 class="mono text-xs text-neutral-500 tracking-[0.2em] uppercase">// CONTACT_NODE</h2>
+                    <h3 class="mono text-3xl mt-4 mb-2">Vamos construir algo juntos</h3>
+                    <p class="mono text-neutral-400 max-w-2xl mx-auto">Se você quer falar sobre UX, produto e sistemas — me chama. Normalmente respondo em até 48 horas.</p>
+
+                    <div class="contact-cta-row">
+                        <a href="mailto:hello@miyano.net?subject=Contato%20via%20portfolio" class="btn-primary mono">Falar comigo</a>
+                        <a href="https://www.linkedin.com/" class="contact-btn" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM0 8.99h5V24H0V8.99zM8.5 8.99h4.78v2.07h.07c.67-1.27 2.3-2.61 4.74-2.61 5.07 0 6 3.34 6 7.68V24h-5v-7.52c0-1.79-.03-4.09-2.49-4.09-2.49 0-2.87 1.94-2.87 3.96V24h-5V8.99z"/></svg>
+                        </a>
+                        <a href="mailto:hello@miyano.net" class="contact-btn" aria-label="Email">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 13.065L0 5.25V18c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2V5.25L12 13.065zM22 4H2C.9 4 0 4.9 0 6.01V6l12 7 12-7v-.99C24 4.9 23.1 4 22 4z"/></svg>
+                        </a>
+                    </div>
+
+                    <p class="mono text-[10px] text-neutral-600 mt-8 mb-2">EST. 2024 / PROTOCOL_CORE</p>
+                    <p class="mono text-xs opacity-40">© MIYANO ARCHIVE // ALL RIGHTS RESERVED</p>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { RoundedBoxGeometry } from 'https://unpkg.com/three@0.128.0/examples/jsm/geometries/RoundedBoxGeometry.js';
+
+        // Audio Engine (keeping in module scope or attaching to window)
+        window.AUDIO = {
+            ctx: null,
+            init() { 
+                if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); 
+            },
+            play(freq) {
+                this.init();
+                const o = this.ctx.createOscillator();
+                const g = this.ctx.createGain();
+                o.frequency.value = freq;
+                o.type = 'sine';
+                g.gain.setValueAtTime(0.02, this.ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+                o.connect(g);
+                g.connect(this.ctx.destination);
+                o.start();
+                o.stop(this.ctx.currentTime + 0.1);
+            }
+        };
+
+        // UI Interactions
+        document.querySelectorAll('a, .work-item').forEach(el => {
+            el.addEventListener('mouseenter', () => window.AUDIO.play(2000));
+        });
+
+        // Three.js Background - Positioned & Rounded
+        function initBg() {
+            const container = document.getElementById('bg-canvas');
+            if(!container) return;
+            
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x030303, 0.05);
+
+            const getDims = () => ({
+                w: container.clientWidth,
+                h: container.clientHeight
+            });
+            let dims = getDims();
+
+            const camera = new THREE.PerspectiveCamera(75, dims.w / dims.h, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({alpha:true, antialias:true});
+            renderer.setSize(dims.w, dims.h);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+            scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            dirLight.position.set(5, 5, 5);
+            scene.add(dirLight);
+
+            // Geometry - Wireframe cubes (plain boxes)
+            const geometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+            const edgesGeometry = new THREE.EdgesGeometry(geometry);
+            const material = new THREE.LineBasicMaterial({ 
+                color: 0x00ff88,  // Green wireframes
+                transparent: true,
+                opacity: 0.6
+            });
+            
+            const cubes = [];
+            const group = new THREE.Group();
+            
+            // Cluster Logic: Rubik-style Grid
+            const gridSize = 4;
+            const spacing = 1.4;
+            for(let x=0; x<gridSize; x++) {
+                for(let y=0; y<gridSize; y++) {
+                    for(let z=0; z<gridSize; z++) {
+                        // Randomly skip some to make it dynamic
+                        if(Math.random() < 0.4) continue;
+
+                        const cube = new THREE.LineSegments(edgesGeometry, material.clone());
+                        
+                        // Base Grid Position
+                        let px = (x - (gridSize-1)/2) * spacing;
+                        let py = (y - (gridSize-1)/2) * spacing;
+                        let pz = (z - (gridSize-1)/2) * spacing;
+
+                        // Add "Out of place" offset to some
+                        if(Math.random() > 0.8) {
+                            px += (Math.random() - 0.5) * 5;
+                            py += (Math.random() - 0.5) * 5;
+                            pz += (Math.random() - 0.5) * 5;
+                        }
+
+                        cube.position.set(px, py, pz);
+                        // ORGANIZED: All share same base orientation
+                        cube.rotation.set(0, 0, 0); 
+                        
+                        group.add(cube);
+                        cubes.push(cube);
+                    }
+                }
+            }
+            
+            // Reposition beside text
+            const updateGroupPos = () => {
+                group.position.x = dims.w > 768 ? 4 : 0;
+                group.position.y = dims.w > 768 ? 0 : -2;
+            };
+            updateGroupPos();
+            scene.add(group);
+
+            camera.position.z = 12;
+
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            let selectedObject = null;
+            let isDragging = false;
+            const dragPlane = new THREE.Plane();
+            const planeNormal = new THREE.Vector3(0, 0, 1);
+            const intersection = new THREE.Vector3();
+            let offset = new THREE.Vector3();
+
+            const updateMouse = (e) => {
+                const rect = container.getBoundingClientRect();
+                mouse.x = ((e.clientX - rect.left) / dims.w) * 2 - 1;
+                mouse.y = -((e.clientY - rect.top) / dims.h) * 2 + 1;
+            };
+
+            container.addEventListener('mousemove', (e) => {
+                updateMouse(e);
+                raycaster.setFromCamera(mouse, camera);
+
+                if (isDragging && selectedObject) {
+                    if (raycaster.ray.intersectPlane(dragPlane, intersection)) {
+                        // Move in group space
+                        const localIntersection = group.worldToLocal(intersection.clone().sub(offset));
+                        selectedObject.position.copy(localIntersection);
+                    }
+                    return;
+                }
+
+                const intersects = raycaster.intersectObjects(cubes);
+                document.body.style.cursor = intersects.length > 0 ? 'grab' : 'crosshair';
+            });
+
+            container.addEventListener('mousedown', (e) => {
+                updateMouse(e);
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(cubes);
+
+                if (intersects.length > 0) {
+                    isDragging = true;
+                    selectedObject = intersects[0].object;
+                    
+                    planeNormal.copy(camera.position).normalize();
+                    const worldPos = new THREE.Vector3();
+                    selectedObject.getWorldPosition(worldPos);
+                    dragPlane.setFromNormalAndCoplanarPoint(planeNormal, worldPos);
+                    
+                    if (raycaster.ray.intersectPlane(dragPlane, intersection)) {
+                        offset.copy(intersection).sub(worldPos);
+                    }
+                    
+                    document.body.style.cursor = 'grabbing';
+                    selectedObject.material.emissive.setHex(0xaa4400);
+                }
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+                if(selectedObject) {
+                    selectedObject.material.emissive.setHex(0);
+                    selectedObject = null;
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                dims = getDims();
+                camera.aspect = dims.w / dims.h;
+                camera.updateProjectionMatrix();
+                renderer.setSize(dims.w, dims.h);
+                updateGroupPos();
+            });
+
+            function animate() {
+                requestAnimationFrame(animate);
+                // ALWAYS rotate to maintain momentum
+                group.rotation.y += 0.003;
+                group.rotation.z += 0.001;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+        
+        initBg();
+
+        // --- INTERACTIVE NODE GRAPH (V4.5 FIXED) ---
+        // Load the 3d-force-graph library dynamically
+        function loadGraphLibrary() {
+            return new Promise((resolve, reject) => {
+                if (typeof ForceGraph3D !== 'undefined') {
+                    resolve();
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/3d-force-graph@1.70.0';
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error('Failed to load 3d-force-graph'));
+                document.head.appendChild(script);
+            });
+        }
+
+        function initNodeGraph() {
+            const elem = document.getElementById('node-graph-viz');
+            if (!elem) {
+                console.error('Graph container not found');
+                return;
+            }
+
+            // Wait until element has dimensions
+            if (elem.clientWidth === 0 || elem.clientHeight === 0) {
+                console.log('Graph waiting for layout... Will retry.');
+                setTimeout(initNodeGraph, 300);
+                return;
+            }
+
+            console.log(`Graph container ready: ${elem.clientWidth}x${elem.clientHeight}`);
+
+            if (typeof ForceGraph3D === 'undefined') {
+                console.error('ForceGraph3D not available');
+                elem.innerHTML = "<div class='graph-loading'>[GRAPH_LIB_ERROR] ForceGraph3D not loaded</div>";
+                return;
+            }
+
+            // Create glow texture for nodes
+            function createGlowTexture() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64;
+                canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+                gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.6)');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 64, 64);
+                const texture = new THREE.CanvasTexture(canvas);
+                return texture;
+            }
+
+            // Spread nodes evenly throughout 3D space like a star field
+            // Using spherical distribution with randomization for natural look
+            
+            // Helper function to generate points on a sphere with variation
+            function sphericalPoint(radius, indexRatio, variation = 30) {
+                const phi = Math.acos(-1 + (2 * indexRatio));
+                const theta = Math.sqrt((100) * Math.PI) * phi;
+                
+                const r = radius + (Math.random() - 0.5) * variation;
+                const x = r * Math.cos(theta) * Math.sin(phi);
+                const y = r * Math.sin(theta) * Math.sin(phi);
+                const z = r * Math.cos(phi);
+                
+                return { x, y, z };
+            }
+            
+            const allSkills = [
+                // Research Methods
+                { name: "Generative Research", type: "methods" },
+                { name: "Evaluative Research", type: "methods" },
+                { name: "Mixed Methods", type: "methods" },
+                { name: "User Interviews", type: "methods" },
+                { name: "Contextual Inquiry", type: "methods" },
+                { name: "Usability Testing", type: "methods" },
+                { name: "Card Sorting", type: "methods" },
+                { name: "A/B Testing", type: "methods" },
+                { name: "Analytics", type: "methods" },
+                { name: "Heatmaps", type: "methods" },
+                { name: "Personas", type: "artifacts" },
+                { name: "JTBD", type: "artifacts" },
+                { name: "Empathy Maps", type: "artifacts" },
+                
+                // Product Strategy
+                { name: "Product Discovery", type: "decisions" },
+                { name: "Value Proposition", type: "decisions" },
+                { name: "OKRs", type: "decisions" },
+                { name: "Roadmapping", type: "decisions" },
+                { name: "North Star Metrics", type: "decisions" },
+                { name: "Product Vision", type: "decisions" },
+                { name: "Business Models", type: "decisions" },
+                { name: "Competitive Analysis", type: "decisions" },
+                { name: "Market Research", type: "decisions" },
+                
+                // Interaction Design
+                { name: "Interaction Patterns", type: "artifacts" },
+                { name: "Microinteractions", type: "artifacts" },
+                { name: "Motion Design", type: "artifacts" },
+                { name: "State Management", type: "artifacts" },
+                { name: "Navigation Models", type: "artifacts" },
+                { name: "Form Design", type: "artifacts" },
+                
+                // Information Architecture
+                { name: "Site Maps", type: "artifacts" },
+                { name: "Content Hierarchies", type: "artifacts" },
+                { name: "Taxonomies", type: "artifacts" },
+                { name: "Navigation Structures", type: "artifacts" },
+                { name: "Wayfinding", type: "artifacts" },
+                { name: "Search & Filtering", type: "artifacts" },
+                
+                // Usability & Accessibility
+                { name: "Heuristics", type: "methods" },
+                { name: "WCAG", type: "methods" },
+                { name: "Inclusive Design", type: "methods" },
+                { name: "Keyboard Navigation", type: "methods" },
+                { name: "Screen Reader Support", type: "methods" },
+                
+                // Design Process
+                { name: "Problem Framing", type: "methods" },
+                { name: "Brainstorming", type: "methods" },
+                { name: "Design Studios", type: "methods" },
+                { name: "Prototype Testing", type: "methods" },
+                { name: "Design Reviews", type: "methods" },
+                { name: "Iterative Refinement", type: "methods" },
+                
+                // Design Systems
+                { name: "Design Systems", type: "meta" },
+                { name: "Component Libraries", type: "artifacts" },
+                { name: "Pattern Libraries", type: "artifacts" },
+                { name: "Design Tokens", type: "artifacts" },
+                { name: "Governance Models", type: "meta" },
+                
+                // Metrics
+                { name: "KPIs", type: "outcomes" },
+                { name: "Activation", type: "outcomes" },
+                { name: "Retention", type: "outcomes" },
+                { name: "Conversion Rate", type: "outcomes" },
+                { name: "Feature Adoption", type: "outcomes" },
+                
+                // Prototyping
+                { name: "Wireframes", type: "artifacts" },
+                { name: "Interactive Prototypes", type: "artifacts" },
+                
+                // Systems Thinking
+                { name: "Feedback Loops", type: "meta" },
+                { name: "Trade-offs", type: "meta" },
+                { name: "Constraints", type: "meta" },
+                { name: "Dependencies", type: "meta" },
+                
+                // Collaboration
+                { name: "Product Management", type: "collab" },
+                { name: "Engineering", type: "collab" },
+                { name: "Workshop Facilitation", type: "collab" },
+                { name: "Stakeholder Management", type: "collab" },
+                
+                // Ethics
+                { name: "Privacy by Design", type: "ethics" },
+                { name: "Consent", type: "ethics" },
+                { name: "Dark Patterns Awareness", type: "ethics" },
+                { name: "Bias Mitigation", type: "ethics" },
+                
+                // Additional Skills
+                { name: "Design Critique", type: "collab" },
+                { name: "Storytelling", type: "collab" },
+                { name: "User Flows", type: "artifacts" },
+                { name: "Journey Mapping", type: "artifacts" },
+                { name: "Service Blueprints", type: "artifacts" },
+                { name: "Tree Testing", type: "methods" },
+                { name: "Guerilla Testing", type: "methods" },
+                { name: "Cognitive Walkthrough", type: "methods" },
+                { name: "Funnel Analysis", type: "methods" },
+                { name: "Cohort Analysis", type: "methods" }
+            ];
+            
+            // Generate nodes with spherical distribution
+            const allNodes = allSkills.map((skill, index) => {
+                const pos = sphericalPoint(120, index / allSkills.length, 30);
+                return {
+                    id: skill.name,
+                    group: skill.type,
+                    val: 10,
+                    ...pos
+                };
+            });
+
+            // Connect every node only to the invisible center node (no interlinks)
+            const CENTER_ID = '__CENTER__';
+            const centerNode = { id: CENTER_ID, group: 'center', val: 0, x: 0, y: 0, z: 0, hidden: true };
+            const links = allNodes.map(n => ({ source: n.id, target: CENTER_ID }));
+
+            const data = {
+                nodes: [centerNode, ...allNodes],
+                links: links
+            }; 
+
+            try {
+                // Clear loading indicator
+                elem.innerHTML = '<div class="graph-loading">[RENDERING...]</div>';
+                
+                console.log('Initializing ForceGraph3D...');
+                let isRotating = true;
+                let hoveredNode = null;
+                let currentHoverId = null; // For dynamic link highlighting
+                const nodeObjects = new Map();
+                
+                // Create cubic nodes using Three.js
+                const Graph = ForceGraph3D()(elem)
+                    .graphData(data)
+                    .backgroundColor('rgba(0, 0, 0, 0)')
+                    .showNavInfo(false)
+                    .linkWidth(0.45)
+                    .linkColor(link => {
+                        const s = (link.source && link.source.id) || link.source;
+                        const t = (link.target && link.target.id) || link.target;
+                        return (currentHoverId && (s === currentHoverId || t === currentHoverId))
+                            ? 'rgba(0,255,136,0.9)'
+                            : 'rgba(0,255,136,0.22)';
+                    })
+                    .linkOpacity(0.28)
+                    .nodeLabel('id')
+                    .width(elem.clientWidth)
+                    .height(elem.clientHeight)
+                    .enableNodeDrag(false)
+                    .cooldownTicks(0)
+                    .nodeThreeObject(node => {
+                        // If center, return empty object (invisible)
+                        if (node.id === '__CENTER__') return new THREE.Object3D();
+
+                        const size = 1.8;
+                        const geometry = new THREE.BoxGeometry(size, size, size);
+
+                        const material = new THREE.MeshBasicMaterial({
+                            color: 0xccffee, // Very light green tint
+                            transparent: true,
+                            opacity: 0.55 // More subtle
+                        });
+                        const cube = new THREE.Mesh(geometry, material);
+
+                        // Very subtle glow sprite
+                        const spriteMaterial = new THREE.SpriteMaterial({
+                            map: createGlowTexture(),
+                            color: 0x88ffcc,
+                            transparent: true,
+                            opacity: 0.18,
+                            blending: THREE.AdditiveBlending
+                        });
+                        const sprite = new THREE.Sprite(spriteMaterial);
+                        sprite.scale.set(size * 2, size * 2, 1);
+                        cube.add(sprite);
+
+                        cube.userData.originalColor = 0xccffee;
+                        cube.userData.originalSpriteOpacity = spriteMaterial.opacity;
+                        cube.userData.sprite = sprite;
+
+                        nodeObjects.set(node.id, cube);
+                        return cube;
+                    })
+                    .onNodeHover(node => {
+                        // Ignore center
+                        if (node && node.id === '__CENTER__') return;
+
+                        // Reset previous hovered node
+                        if (hoveredNode && hoveredNode !== node) {
+                            const prevCube = nodeObjects.get(hoveredNode.id);
+                            if (prevCube) {
+                                prevCube.scale.set(1, 1, 1);
+                                prevCube.material.color.setHex(prevCube.userData.originalColor || 0xccffee);
+                                if (prevCube.userData.sprite) prevCube.userData.sprite.material.opacity = prevCube.userData.originalSpriteOpacity || 0.18;
+                            }
+                        }
+
+                        hoveredNode = node;
+                        currentHoverId = node ? node.id : null; // for dynamic link highlighting
+                        // Refresh link colors by setting the same function again (forces update)
+                        Graph.linkColor(link => {
+                            const s = (link.source && link.source.id) || link.source;
+                            const t = (link.target && link.target.id) || link.target;
+                            return (currentHoverId && (s === currentHoverId || t === currentHoverId))
+                                ? 'rgba(0,255,136,0.65)'
+                                : 'rgba(0,255,136,0.18)';
+                        });
+
+                        isRotating = !!node ? false : true; // Stop rotation when hovering
+                        elem.style.cursor = node ? 'pointer' : 'default';
+
+                        // Highlight hovered node
+                        if (node) {
+                            const cube = nodeObjects.get(node.id);
+                            if (cube) {
+                                cube.scale.set(2.5, 2.5, 2.5); // larger on hover
+                                cube.material.color.setHex(0x00ff88); // bright green
+                                if (cube.userData.sprite) cube.userData.sprite.material.opacity = 0.6;
+                            }
+                        }
+                    });
+
+                console.log('Graph created successfully');
+
+                // Cinematic auto-rotation only (no manual controls)
+                const distance = 280;
+                let angle = 0;
+                let verticalOffset = 0;
+
+                function rotateCamera() {
+                    if (isRotating) {
+                        angle += 0.0006; // Slow, steady rotation
+                        verticalOffset = Math.sin(angle * 2) * 12; // Subtle vertical drift
+                        
+                        const camera = Graph.camera();
+                        camera.position.x = distance * Math.sin(angle);
+                        camera.position.z = distance * Math.cos(angle);
+                        camera.position.y = 35 + verticalOffset;
+                        camera.lookAt(0, 0, 0);
+                    }
+                    requestAnimationFrame(rotateCamera);
+                }
+                
+                // Disable all user controls for smooth cinematic experience
+                Graph.controls().enabled = false;
+                
+                rotateCamera();
+
+                // Force explicit dimensions
+                setTimeout(() => {
+                    Graph.width(elem.clientWidth);
+                    Graph.height(elem.clientHeight);
+                }, 100);
+
+                const resizeObserver = new ResizeObserver(entries => {
+                    for (let entry of entries) {
+                        const { width, height } = entry.contentRect;
+                        if(width > 0 && height > 0) {
+                            Graph.width(width);
+                            Graph.height(height);
+                        }
+                    }
+                });
+                resizeObserver.observe(elem);
+
+                // --- Node pulsing animation (radial breathing) ---
+                const originalPos = new Map();
+                data.nodes.forEach((n, idx) => {
+                    if (n.id === '__CENTER__') return;
+                    originalPos.set(n.id, { x: n.x, y: n.y, z: n.z, offset: Math.random() * Math.PI * 2 });
+                });
+
+                (function animateNodes() {
+                    const t = performance.now() / 1000;
+                    data.nodes.forEach(n => {
+                        if (n.id === '__CENTER__') return;
+                        const o = originalPos.get(n.id);
+                        const k = 1 + Math.sin(t * 0.6 + o.offset) * 0.08; // +/-8%
+                        n.x = o.x * k;
+                        n.y = o.y * k;
+                        n.z = o.z * k;
+                    });
+                    Graph.graphData({ nodes: data.nodes, links: data.links });
+                    requestAnimationFrame(animateNodes);
+                })();
+                
+            } catch (e) {
+                console.error('Graph initialization error:', e);
+                elem.innerHTML = `<div class='graph-loading'>[GRAPH_ERROR] ${e.message}</div>`;
+            }
+        }
+        
+        // Load library and initialize graph
+        loadGraphLibrary()
+            .then(() => {
+                console.log('3d-force-graph library loaded successfully');
+                // Wait for DOM layout
+                setTimeout(initNodeGraph, 500);
+            })
+            .catch(err => {
+                console.error('Failed to load graph library:', err);
+                const elem = document.getElementById('node-graph-viz');
+                if (elem) {
+                    elem.innerHTML = "<div class='graph-loading'>[LIBRARY_LOAD_FAILED] Check console</div>";
+                }
+            });
+    </script>
+</body>
+</html>

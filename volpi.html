@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOLPI // CASE_02</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Syne', sans-serif;
+            cursor: none;
+            background-color: #f8f8f8;
+            background-image: radial-gradient(#ccc 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #000;
+        }
+
+        /* Custom Cursor - Scanner Lens */
+        #custom-cursor {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.05);
+            background-image: radial-gradient(#00ff00 1.5px, transparent 1.5px);
+            background-size: 15px 15px;
+            border: 2px solid #000;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            backdrop-filter: contrast(1.2) saturate(1.2) brightness(1.1);
+            border-radius: 50%;
+            transition: width 0.3s, height 0.3s, background-color 0.3s, border-radius 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 15px rgba(0, 255, 0, 0.1);
+        }
+
+        #custom-cursor::after {
+            content: '';
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 255, 0, 0.5);
+            position: absolute;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        .brutalist-card {
+            border: 4px solid #000;
+            box-shadow: 8px 8px 0px #000;
+        }
+        
+        .font-mono { font-family: 'Courier Prime', monospace; }
+
+        ::selection {
+            background: #000;
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body class="pb-32">
+    <div id="custom-cursor"></div>
+
+    <nav class="py-6 border-b-4 border-black bg-white sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2 font-black uppercase hover:bg-yellow-300 px-2 py-1 border-2 border-transparent hover:border-black transition-all">
+                <span>&larr;</span> BACK TO HUB
+            </a>
+            <div class="font-mono font-bold text-xs md:text-sm uppercase tracking-tighter">CASE_02: VOLPI_FINTECH</div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 py-16 space-y-16">
+        <!-- Hero -->
+        <header class="grid md:grid-cols-2 gap-8 items-start">
+            <div class="brutalist-card bg-white p-8">
+                <div class="bg-pink-500 text-white inline-block px-3 py-1 font-mono text-xs font-bold mb-4">FINTECH / STRATEGY</div>
+                <h1 class="text-4xl md:text-6xl font-black uppercase mb-4 leading-none text-pink-500">Volpi</h1>
+                <p class="font-mono text-gray-600 mb-6 italic text-sm md:text-base">Redesigned home financing to be less of a black box and more of a checklist.</p>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-yellow-400 border-2 border-black p-4 shadow-[4px_4px_0px_#000]">
+                        <div class="text-[10px] font-mono font-black uppercase">Time</div>
+                        <div class="text-2xl font-black">-40%</div>
+                    </div>
+                    <div class="bg-green-500 border-2 border-black p-4 shadow-[4px_4px_0px_#000]">
+                        <div class="text-[10px] font-mono font-black uppercase">Conv.</div>
+                        <div class="text-2xl font-black">+35%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="brutalist-card bg-pink-500 p-8 text-white md:-rotate-1">
+                <div class="text-xs font-mono mb-2 uppercase opacity-80">The Core Problem</div>
+                <p class="text-lg font-bold leading-tight">
+                    Mortgages are scary. We built a timeline that transforms a process opaque in a visible, reliable flow.
+                </p>
+                <div class="mt-8 border-t-2 border-pink-300 pt-4 flex justify-between items-end">
+                    <span class="text-4xl">🏠</span>
+                    <span class="font-mono text-[10px]">FIXING_FINANCE</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="grid md:grid-cols-12 gap-12">
+            <div class="md:col-span-4">
+                <div class="sticky top-24 space-y-8">
+                    <h2 class="text-2xl font-black uppercase border-b-4 border-black pb-2">Data</h2>
+                    <ul class="space-y-4 font-mono text-sm">
+                        <li class="border-l-4 border-pink-500 pl-2">
+                            <span class="font-black block uppercase">01. Discovery</span>
+                            <span class="text-gray-500">Timeline percebida como 'caixa preta'.</span>
+                        </li>
+                        <li class="border-l-4 border-pink-500 pl-2">
+                            <span class="font-black block uppercase">02. Interaction</span>
+                            <span class="text-gray-500">Centro de docs com validação imediata.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="md:col-span-8 space-y-12">
+                <section class="bg-white brutalist-card p-8">
+                    <h3 class="text-xl font-black uppercase mb-4">1. Discovery</h3>
+                    <p class="font-serif italic text-gray-700 leading-relaxed text-lg mb-6">
+                        Entrevistamos usuários e mapeamos onde as pessoas perdiam confiança: falta de visibilidade do status e incerteza sobre prazos.
+                    </p>
+                </section>
+
+                <section class="bg-pink-50 border-4 border-black p-6 md:p-8 rotate-1 shadow-[8px_8px_0px_#000]">
+                    <h3 class="text-xl font-black uppercase mb-4 text-pink-500">2. Interactions</h3>
+                    <p class="font-mono text-sm mb-6">Desenhamos uma timeline interativa que mostra estágio atual e próximos passos claros.</p>
+                    <div class="bg-white border-2 border-black p-4 aspect-video flex items-center justify-center font-mono text-xs text-gray-400">
+                        [TIMELINE_PROTOTYPE.JPG]
+                    </div>
+                </section>
+
+                <section class="bg-black text-white p-8 shadow-[8px_8px_0px_#ffff00]">
+                    <h3 class="text-xl font-black uppercase mb-4 text-yellow-400">3. Results</h3>
+                    <p class="mb-4 font-mono text-sm leading-relaxed">
+                        Redução de 40% no tempo total e NPS de +47, bem acima da média do setor.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 font-mono text-[10px] uppercase text-center">
+                        <div class="border border-gray-700 p-3 italic">Faster process</div>
+                        <div class="border border-gray-700 p-3 italic">Higher Trust</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const cursor = document.getElementById('custom-cursor');
+        let mouseX = 0; let mouseY = 0; let cursorX = 0; let cursorY = 0; let speed = 0;
+        document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        function animate() {
+            let distX = mouseX - cursorX; let distY = mouseY - cursorY;
+            speed = Math.sqrt(distX * distX + distY * distY);
+            cursorX = cursorX + (distX * 0.15); cursorY = cursorY + (distY * 0.15);
+            cursor.style.left = cursorX - (cursor.offsetWidth / 2) + 'px';
+            cursor.style.top = cursorY - (cursor.offsetHeight / 2) + 'px';
+            cursor.style.backgroundPosition = `${cursorX * 0.5}px ${cursorY * 0.5}px`;
+            const scale = 1 + (speed / 100); const invScale = 1 - (speed / 300);
+            const angle = Math.atan2(distY, distX) * 180 / Math.PI;
+            cursor.style.transform = `rotate(${angle}deg) scale(${scale}, ${invScale})`;
+            requestAnimationFrame(animate);
+        }
+        animate();
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => { cursor.style.width = '100px'; cursor.style.height = '100px'; cursor.style.backgroundColor = 'rgba(255, 0, 255, 0.1)'; });
+            el.addEventListener('mouseleave', () => { cursor.style.width = '60px'; cursor.style.height = '60px'; cursor.style.backgroundColor = 'rgba(0, 0, 0, 0.05)'; });
+        });
+    </script>
+</body>
+</html>
+
+      <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700">
+        <div class="text-slate-500 text-sm font-medium mb-2">Mockup / Screenshot</div>
+        <div class="h-64 bg-gradient-to-br from-emerald-50 to-white rounded-lg flex items-center justify-center text-emerald-700">
+          <div class="text-center">
+            <div class="font-semibold">Web — Timeline de Progresso</div>
+            <div class="text-xs mt-1">Etapas: Documentação, Análise, Assinatura</div>
+          </div>
+        </div>
+        <p class="text-xs text-slate-400 mt-3">Prompt de imagem sugerido: "Interface de usuário (UI) de uma plataforma web de financiamento imobiliário exibindo uma timeline de progresso elegante (passo a passo). Estilo minimalista, cores cinza suave e verde, mostrando etapas como 'Documentação', 'Análise' e 'Aprovação'. Visualização limpa e profissional para site de tecnologia."</p>
+      </div>
+    </header>
+
+    <!-- 1. Discovery -->
+    <section class="space-y-4">
+      <h2 class="text-2xl font-bold">1. Discovery</h2>
+      <p class="text-slate-300">Entrevistamos usuários e especialistas para mapear onde as pessoas perdiam confiança: falta de visibilidade do status, incerteza sobre documentos e prazos e pouca orientação clara sobre próximos passos.</p>
+
+      <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+        <h3 class="font-semibold">Insights-chave</h3>
+        <ul class="list-inside list-disc text-slate-400 mt-2 text-sm">
+          <li>Processo percebido como 'caixa preta' — alto drop-off</li>
+          <li>Documentos mal organizados e sem feedback de validade</li>
+          <li>Usuários queriam estimativas de tempo e próximos passos claros</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 2. Interactions -->
+    <section class="space-y-4">
+      <h2 class="text-2xl font-bold">2. Interactions</h2>
+      <p class="text-slate-300">Desenhamos uma timeline interativa que mostra estágio atual e próximos passos, um centro de documentos com upload e validação imediata e um simulador progressivo que entrega valor com poucos dados.</p>
+
+      <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
+        <div class="h-40 bg-slate-700 rounded-md flex items-center justify-center text-slate-400">Timeline interativa — Mockup (placeholder)</div>
+        <p class="text-xs text-slate-400 mt-2">(Insira uma imagem com a timeline ou screenshots.)</p>
+      </div>
+    </section>
+
+    <!-- 3. Execution -->
+    <section class="space-y-4">
+      <h2 class="text-2xl font-bold">3. Execution</h2>
+      <p class="text-slate-300">Priorizamos visibilidade e validação de documentos. Implementamos feedback instantâneo no upload, checklist com estados e um simulador que coleta apenas o mínimo necessário antes de pedir dados sensíveis.</p>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 text-center">
+          <div class="font-semibold text-emerald-300">Timeline</div>
+          <div class="text-xs text-slate-400">Visibilidade do progresso</div>
+        </div>
+        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 text-center">
+          <div class="font-semibold text-emerald-300">Centro de Documentos</div>
+          <div class="text-xs text-slate-400">Checklist e validação</div>
+        </div>
+        <div class="bg-slate-800 p-4 rounded-lg border border-slate-700 text-center">
+          <div class="font-semibold text-emerald-300">Simulador</div>
+          <div class="text-xs text-slate-400">Valor rápido</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Outcomes -->
+    <section class="space-y-4">
+      <h2 class="text-2xl font-bold">Outcomes</h2>
+      <p class="text-slate-300">Os resultados foram significativos: redução de 40% no tempo total, +35% na conversão e NPS de +47, bem acima da média do setor financeiro.</p>
+
+      <ul class="list-inside list-disc text-slate-400">
+        <li>Tempo de processo reduzido em 40%</li>
+        <li>Conversão de leads para contratos finalizados: +35%</li>
+        <li>NPS final: +47 (vs média do setor: +12)</li>
+      </ul>
+    </section>
+
+    <footer class="mt-8 py-8 border-t border-slate-800 text-center">
+      <p class="text-slate-400">Interessado? <a href="index.html" class="text-emerald-300 font-semibold hover:underline">Voltar ao portfolio</a> ou <a href="mailto:seuemail@exemplo.com" class="text-emerald-300 font-semibold hover:underline">me envie um e-mail</a>.</p>
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIYANO BOT // PRODUCT ARCHIVE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #ff4d00; /* International Orange */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fff;
+            color: #000;
+            cursor: none;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* New Cursor Proposal: The "Inverter Ring" */
+        #cursor-core {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+        }
+        #cursor-ring {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #000;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, border-color 0.3s, background-color 0.3s;
+            mix-blend-mode: difference;
+            background-color: transparent;
+            border-radius: 50%;
+        }
+
+        .grid-line {
+            position: fixed;
+            background: #eee;
+            z-index: -1;
+        }
+        .h-line { width: 100%; height: 1px; left: 0; }
+        .v-line { width: 1px; height: 100%; top: 0; }
+
+        .project-card {
+            border-top: 1px solid #000;
+            padding-top: 2rem;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .project-card:hover {
+            padding-left: 2rem;
+            color: var(--accent);
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        /* Smooth scroll */
+        html { scroll-behavior: smooth; }
+
+        .header-outline {
+            -webkit-text-stroke: 1.5px #000;
+            color: transparent;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+    <!-- Grid System Overlay -->
+    <div class="h-line grid-line" style="top: 10vh"></div>
+    <div class="h-line grid-line" style="top: 50vh"></div>
+    <div class="v-line grid-line" style="left: 10vw"></div>
+    <div class="v-line grid-line" style="left: 90vw"></div>
+
+    <div id="cursor-core"></div>
+    <div id="cursor-ring"></div>
+
+    <!-- Header -->
+    <nav class="flex justify-between items-start mb-32 relative z-10">
+        <div>
+            <h1 class="text-xl font-black italic tracking-tighter">MIYANO BOT</h1>
+            <p class="mono text-[10px] uppercase opacity-50">Industrial Design / Digital systems</p>
+        </div>
+        <div class="text-right mono text-[10px] uppercase space-y-1">
+            <p>Tokyo / Remote</p>
+            <p id="time-display">00:00:00 JST</p>
+            <a href="mailto:hello@miyano.bot" class="block hover:text-[var(--accent)]">[ CONTACT ]</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <main class="max-w-7xl mx-auto">
+        <section class="mb-64">
+            <h2 class="text-[clamp(3rem,12vw,10rem)] leading-[0.85] font-black tracking-tighter uppercase mb-12">
+                Digital<br>
+                <span class="header-outline">Function</span>
+            </h2>
+            <div class="grid md:grid-cols-12 gap-8 items-end">
+                <div class="md:col-span-4 mono text-xs uppercase space-y-4">
+                    <p class="border-l-2 border-[var(--accent)] pl-4">I solve complex problems through systematic visual archetypes.</p>
+                    <p class="opacity-40">Obsessed with the edge between hardware aesthetics and software utility.</p>
+                </div>
+                <div class="md:col-span-8 text-right">
+                    <p class="text-3xl md:text-5xl font-light tracking-tight max-w-2xl ml-auto">
+                        Building tools that feel like <span class="italic">precision instruments.</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Project List -->
+        <section id="work" class="space-y-32 mb-64">
+            <div class="mono text-[10px] mb-8 uppercase opacity-50 tracking-[0.2em]">Selected Archive // 2024-2026</div>
+            
+            <a href="algar.html" class="project-card block group">
+                <div class="flex justify-between items-baseline">
+                    <span class="mono text-sm">01.</span>
+                    <h3 class="text-5xl md:text-8xl font-black uppercase">Algar</h3>
+                    <span class="hidden md:block mono text-xs uppercase opacity-0 group-hover:opacity-100 transition-opacity">Efficiency / Fintech</span>
+                </div>
+                <p class="max-w-md mt-4 opacity-60">Redesigning a legacy system to reduce operational friction by 60% through biometric integration.</p>
+            </a>
+
+            <a href="volpi.html" class="project-card block group">
+                <div class="flex justify-between items-baseline">
+                    <span class="mono text-sm">02.</span>
+                    <h3 class="text-5xl md:text-8xl font-black uppercase">Volpi</h3>
+                    <span class="hidden md:block mono text-xs uppercase opacity-0 group-hover:opacity-100 transition-opacity">Trust / Logistics</span>
+                </div>
+                <p class="max-w-md mt-4 opacity-60">Architecting transparency in real estate financing via intuitive progress tracking systems.</p>
+            </a>
+        </section>
+
+        <!-- Footer -->
+        <footer class="border-t-[10px] border-black pt-8 flex flex-col md:flex-row justify-between mono text-[10px] uppercase">
+            <div class="mb-8 md:mb-0">
+                <p>© 2026 Miyano Bot Archive</p>
+                <p>Designed for high-performance humans.</p>
+            </div>
+            <div class="flex gap-12">
+                <a href="#" class="hover:text-[var(--accent)]">Linkedin / </a>
+                <a href="#" class="hover:text-[var(--accent)]">Github / </a>
+                <a href="#" class="hover:text-[var(--accent)]">Dribbble / </a>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        const core = document.getElementById('cursor-core');
+        const ring = document.getElementById('cursor-ring');
+        
+        let mouseX = 0, mouseY = 0;
+        let ringX = 0, ringY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            core.style.left = mouseX + 'px';
+            core.style.top = mouseY + 'px';
+        });
+
+        function animate() {
+            ringX += (mouseX - ringX) * 0.15;
+            ringY += (mouseY - ringY) * 0.15;
+            ring.style.left = ringX + 'px';
+            ring.style.top = ringY + 'px';
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('mouseenter', () => {
+                ring.style.width = '80px';
+                ring.style.height = '80px';
+                ring.style.backgroundColor = 'white';
+                ring.style.borderColor = 'transparent';
+                core.style.backgroundColor = '#000';
+            });
+            link.addEventListener('mouseleave', () => {
+                ring.style.width = '40px';
+                ring.style.height = '40px';
+                ring.style.backgroundColor = 'transparent';
+                ring.style.borderColor = '#000';
+                core.style.backgroundColor = '#ff4d00';
+            });
+        });
+
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { hour12: false, timeZone: 'Asia/Tokyo' });
+            document.getElementById('time-display').innerText = timeStr + ' JST';
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+</body>
+</html>
