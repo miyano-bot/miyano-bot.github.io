@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0%" stop-color="#081018"/>
+      <stop offset="100%" stop-color="#00110a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#g)" />
+  <g fill="#00ff88" opacity="0.08">
+    <rect x="60" y="60" width="420" height="240" rx="8" />
+    <rect x="540" y="60" width="600" height="240" rx="8" />
+    <rect x="60" y="340" width="1080" height="240" rx="8" />
+  </g>
+  <g fill="#b6f8d6" opacity="0.18">
+    <circle cx="220" cy="180" r="6" />
+    <circle cx="280" cy="220" r="4" />
+    <circle cx="640" cy="120" r="4" />
+  </g>
+  <text x="80" y="460" fill="#cfeedc" font-family="JetBrains Mono, monospace" font-size="34">Torre de Controle — mockup preview</text>
+</svg>

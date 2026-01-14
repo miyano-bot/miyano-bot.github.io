@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <rect width="800" height="500" fill="#061223" />
+  <g fill="#00ff88" opacity="0.08">
+    <rect x="40" y="40" width="320" height="200" rx="6" />
+  </g>
+  <text x="60" y="320" fill="#9ef4cc" font-family="JetBrains Mono, monospace" font-size="26">Algar — flow snapshot</text>
+</svg>

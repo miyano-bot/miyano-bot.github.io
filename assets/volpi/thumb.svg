@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <rect width="800" height="500" fill="#051024" />
+  <g fill="#00ff88" opacity="0.08">
+    <rect x="420" y="60" width="320" height="160" rx="6" />
+  </g>
+  <text x="60" y="420" fill="#9ef4cc" font-family="JetBrains Mono, monospace" font-size="26">Volpi — product snapshot</text>
+</svg>
