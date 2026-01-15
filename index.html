@@ -297,6 +297,20 @@
         /* 3D flip title animation (Traf-inspired) */
         .title-clip { display:inline-block; overflow:hidden; vertical-align:middle; perspective: 800px; -webkit-perspective: 800px; }
         .title-word { display:inline-flex; white-space: nowrap; margin-right: 0.35ch; align-items: center; }
+
+        /* Custom cursor (disabled on touch and reduced-motion) */
+        body.has-custom-cursor { cursor: none !important; }
+        #custom-cursor { position: fixed; top: 0; left: 0; width: 44px; height: 44px; pointer-events: none; transform: translate(-50%, -50%) scale(1); transition: transform 220ms cubic-bezier(.2,.9,.3,1), opacity 220ms ease; z-index: 999999; opacity: 0; will-change: transform, opacity; mix-blend-mode: screen; }
+        #custom-cursor .cursor-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.9); box-shadow: 0 0 14px rgba(255,107,255,0.08), -6px 0 12px rgba(107,255,222,0.06); transform: scale(0.82); transition: transform 180ms cubic-bezier(.2,.9,.3,1), box-shadow 180ms; }
+        #custom-cursor .cursor-dot { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; border-radius: 50%; background: var(--text-main); box-shadow: 0 0 6px rgba(255,255,255,0.6); }
+
+        body.cursor-hovering #custom-cursor { transform: translate(-50%, -50%) scale(1.7); }
+        body.cursor-hovering #custom-cursor .cursor-ring { transform: scale(1.02); border-color: var(--accent); box-shadow: 0 0 20px rgba(255,107,255,0.12), -6px 0 16px rgba(107,255,222,0.08); }
+        #custom-cursor.clicking .cursor-ring { animation: cursorClick 420ms ease; }
+        @keyframes cursorClick { 0% { transform: scale(0.9); opacity: 1 } 50% { transform: scale(1.9); opacity: 0.6 } 100% { transform: scale(1); opacity: 1 } }
+        @media (prefers-reduced-motion: reduce){
+            #custom-cursor, body.has-custom-cursor { display: none !important; }
+        }
         .title-space { display:inline-block; width: 0.35ch; }
         .title-letter { display:inline-block; transition: transform 520ms cubic-bezier(0.2,0.9,0.28,1), opacity 360ms ease, text-shadow 420ms ease; transform-origin: 50% 60%; transform-style: preserve-3d; backface-visibility: hidden; will-change: transform, opacity; vertical-align: middle; overflow: hidden; }
         .title-letter.letter-enter { transform: rotateX(80deg) translateY(18px) translateZ(6px) scale(0.985); opacity: 0; }
@@ -3052,6 +3066,82 @@
                 startAutoCycle();
             })();
         })();
+    </script>
+
+    <!-- Custom cursor element and behavior -->
+    <div id="custom-cursor" aria-hidden="true">
+        <div class="cursor-ring"></div>
+        <div class="cursor-dot"></div>
+    </div>
+    <script>
+    (function(){
+        try {
+            if ('ontouchstart' in window || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches)) return; // skip on touch
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; // respect user pref
+
+            const cursor = document.getElementById('custom-cursor');
+            if (!cursor) return;
+            document.body.classList.add('has-custom-cursor');
+
+            let raf = null;
+            let x = window.innerWidth / 2, y = window.innerHeight / 2;
+            let visible = false;
+
+            function render(){
+                cursor.style.left = x + 'px';
+                cursor.style.top = y + 'px';
+                raf = null;
+            }
+
+            function onPointerMove(e){
+                x = e.clientX; y = e.clientY;
+                if (!visible) { cursor.style.opacity = '1'; visible = true; }
+                if (!raf) raf = requestAnimationFrame(render);
+                scheduleHide();
+            }
+
+            // Hide on inactivity
+            let hideTimer = null;
+            function scheduleHide(){
+                if (hideTimer) clearTimeout(hideTimer);
+                hideTimer = setTimeout(() => { cursor.style.opacity = '0'; visible = false; }, 2500);
+            }
+
+            document.addEventListener('pointermove', onPointerMove, { passive: true });
+
+            // Hover interactions (links, buttons, CTAs)
+            const hoverSelector = 'a, button, [role="button"], input, .cta-row a, .hud-link';
+            document.addEventListener('pointerover', (e) => {
+                if (e.target && e.target.closest && e.target.closest(hoverSelector)) {
+                    document.body.classList.add('cursor-hovering');
+                }
+            });
+            document.addEventListener('pointerout', (e) => {
+                // if relatedTarget is inside a hoverable, keep hovering; otherwise remove
+                const rt = e.relatedTarget;
+                if (!rt || !rt.closest || !rt.closest(hoverSelector)) {
+                    document.body.classList.remove('cursor-hovering');
+                }
+            });
+
+            // Click ripple
+            document.addEventListener('pointerdown', (e) => {
+                cursor.classList.add('clicking');
+                setTimeout(()=> cursor.classList.remove('clicking'), 420);
+            });
+
+            // show default cursor when interacting with inputs
+            document.addEventListener('pointerdown', (e) => {
+                if (e.target && e.target.closest && e.target.closest('input,textarea,select')) {
+                    document.body.classList.remove('has-custom-cursor');
+                }
+            });
+            document.addEventListener('pointerup', () => { document.body.classList.add('has-custom-cursor'); });
+
+            // cleanup on pagehide
+            window.addEventListener('pagehide', ()=>{ document.body.classList.remove('has-custom-cursor'); });
+        } catch (e) { console.warn('CURSOR: init failed', e); }
+    })();
     </script>
 </body>
 </html>
