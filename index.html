@@ -306,6 +306,14 @@
 
         body.cursor-hovering #custom-cursor { transform: translate(-50%, -50%) scale(1.7); }
         body.cursor-hovering #custom-cursor .cursor-ring { transform: scale(1.02); border-color: var(--accent); box-shadow: 0 0 20px rgba(255,107,255,0.12), -6px 0 16px rgba(107,255,222,0.08); }
+        
+        /* Alternate: block cursor mode (keyboard toggle with 'C') */
+        body.cursor-mode-block #custom-cursor { width: 26px; height: 22px; transform: translate(-50%, -50%) scale(1); }
+        body.cursor-mode-block #custom-cursor .cursor-ring { border-radius: 4px; border: none; background: #ffffff; box-shadow: -6px 0 10px rgba(255,107,255,0.12), 6px 0 10px rgba(107,255,222,0.12); transform: none; opacity: 0.95; }
+        body.cursor-mode-block #custom-cursor .cursor-dot { display: none; }
+        body.cursor-mode-block.cursor-hovering #custom-cursor { transform: translate(-50%, -50%) scale(1.5); }
+        body.cursor-mode-block.cursor-hovering #custom-cursor .cursor-ring { box-shadow: -8px 0 16px rgba(255,107,255,0.18), 8px 0 16px rgba(107,255,222,0.18); }
+
         #custom-cursor.clicking .cursor-ring { animation: cursorClick 420ms ease; }
         @keyframes cursorClick { 0% { transform: scale(0.9); opacity: 1 } 50% { transform: scale(1.9); opacity: 0.6 } 100% { transform: scale(1); opacity: 1 } }
         @media (prefers-reduced-motion: reduce){
@@ -3137,6 +3145,25 @@
                 }
             });
             document.addEventListener('pointerup', () => { document.body.classList.add('has-custom-cursor'); });
+
+            // keyboard toggle: 'C' to cycle cursor modes (ring -> block -> ring)
+            function applyCursorMode(mode) {
+                document.body.classList.toggle('cursor-mode-block', mode === 'block');
+                try { localStorage.setItem('cursor_mode', mode); } catch(e){}
+                console.log('CURSOR: mode', mode);
+            }
+            const saved = (function(){ try { return localStorage.getItem('cursor_mode'); } catch(e){ return null } })();
+            if (saved === 'block') applyCursorMode('block');
+
+            window.addEventListener('keydown', (e) => {
+                // Ignore when typing
+                const tag = (document.activeElement && document.activeElement.tagName) || '';
+                if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.metaKey || e.ctrlKey || e.altKey) return;
+                if (e.key && e.key.toLowerCase() === 'c') {
+                    const isBlock = document.body.classList.toggle('cursor-mode-block');
+                    applyCursorMode(isBlock ? 'block' : 'ring');
+                }
+            });
 
             // cleanup on pagehide
             window.addEventListener('pagehide', ()=>{ document.body.classList.remove('has-custom-cursor'); });
