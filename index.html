@@ -78,12 +78,21 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
             opacity: 1;
+            animation: navFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes navFloat {
+            0%, 100% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-3px); }
         }
 
         .hud-nav.nav-hidden {
+            /* Restoring previous hide animation: translate out of view vertically.
+               Logo is now separated from the HUD so this transform won't affect it. */
             opacity: 0;
             transform: translateX(-50%) translateY(-40px);
             pointer-events: none;
+            will-change: transform, opacity;
         }
 
         .hud-nav:hover {
@@ -98,19 +107,78 @@
             padding: 0 12px;
             border-right: 1px solid var(--border);
         }
-        .logo-mark {
-            width: 12px;
-            height: 12px;
-            background: var(--accent);
-            box-shadow: 0 0 10px var(--accent-glow);
+        .logo-canvas {
+            width: 36px;
+            height: 36px;
+            display: block;
         }
+        .site-logo {
+            position: fixed;
+            top: 20px;
+            left: 40px; /* default left: aligned to grid; JS will refine */
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            gap: 2px; /* tightened spacing */
+            padding: 2px 4px;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            /* remove transitions to prevent movement during scroll */
+            transition: none;
+            cursor: pointer;
+        }
+        .site-logo:hover { transform: translateY(-2px); }
         .logo-text {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 700;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.12em;
             color: var(--text-main);
             text-transform: uppercase;
         }
+        @media (max-width: 640px) {
+            .site-logo { left: 16px; padding: 4px; }
+        }
+        .nav-indicator {
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(0,255,136,0.6), rgba(0,255,136,0.2));
+            border-radius: 2px;
+            transition: left 0.25s ease, width 0.25s ease;
+            pointer-events: none;
+            z-index: 1001;
+        }
+        .hud-link {
+            font-family: 'JetBrains Mono';
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+            padding: 8px 12px;
+            text-decoration: none;
+            transition: color 0.2s, transform 0.18s;
+            opacity: 0;
+            transform: translateY(6px);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .hud-icon {
+            width: 14px;
+            height: 14px;
+            display: inline-flex;
+            color: var(--text-dim);
+            transition: color 0.18s, transform 0.18s;
+        }
+        .hud-link:hover .hud-icon, .hud-link:focus .hud-icon {
+            color: var(--accent);
+            transform: translateY(-1px) scale(1.05);
+        }
+        .hud-link .hud-label { display:inline-block; }
 
         .nav-links {
             display: flex;
@@ -127,7 +195,10 @@
             text-decoration: none;
             transition: color 0.2s;
         }
-        .hud-link:hover { color: var(--accent); }
+        .hud-link:hover { 
+            color: var(--accent);
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
 
         /* Grid Layout */
         .grid-container {
@@ -189,16 +260,117 @@
             letter-spacing: -0.05em;
             text-transform: uppercase;
             font-weight: 800;
+            /* smooth transform for hero transitions */
+            transition: opacity 320ms ease, transform 420ms cubic-bezier(0.2, 0.9, 0.28, 1);
+            will-change: opacity, transform;
         }
         .badge {
             display: inline-block;
-            padding: 4px 0;
-            font-size: 10px;
-            color: var(--accent);
-            letter-spacing: 0.1em;
-            margin-bottom: 24px;
+            padding: 6px 10px;
+            font-size: 12px;
+            color: var(--text-dim);
+            letter-spacing: 0.12em;
+            margin-bottom: 18px;
             font-family: 'JetBrains Mono';
+            background: linear-gradient(90deg, rgba(0,255,136,0.06), rgba(0,255,136,0.02));
+            border-left: 3px solid var(--accent);
+            border-radius: 6px;
+            padding-left: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            transition: opacity 220ms ease, transform 320ms cubic-bezier(0.2, 0.9, 0.28, 1);
         }
+
+        .badge:hover {
+            color: var(--text-main);
+            background: linear-gradient(90deg, rgba(0,255,136,0.09), rgba(0,255,136,0.04));
+        }
+
+        /* Animation helper classes for hero A/B demo */
+        .hero-fade-out {
+            opacity: 0; transform: translateY(-8px) scale(0.995);
+        }
+        .hero-fade-in {
+            opacity: 1; transform: translateY(0px) scale(1);
+        }
+
+        /* 3D flip title animation (Traf-inspired) */
+        .title-clip { display:inline-block; overflow:hidden; vertical-align:middle; perspective: 800px; -webkit-perspective: 800px; }
+        .title-word { display:inline-flex; white-space: nowrap; margin-right: 0.35ch; align-items: center; }
+
+        /* Custom cursor (disabled on touch and reduced-motion) */
+        body.has-custom-cursor { cursor: none !important; }
+        #custom-cursor { position: fixed; top: 0; left: 0; width: 44px; height: 44px; pointer-events: none; transform: translate(-50%, -50%) scale(1); transition: transform 220ms cubic-bezier(.2,.9,.3,1), opacity 220ms ease; z-index: 999999; opacity: 0; will-change: transform, opacity; mix-blend-mode: screen; }
+        #custom-cursor .cursor-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,0.9); box-shadow: 0 0 14px rgba(255,107,255,0.08), -6px 0 12px rgba(107,255,222,0.06); transform: scale(0.82); transition: transform 180ms cubic-bezier(.2,.9,.3,1), box-shadow 180ms; }
+        #custom-cursor .cursor-dot { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; border-radius: 50%; background: var(--text-main); box-shadow: 0 0 6px rgba(255,255,255,0.6); }
+
+        body.cursor-hovering #custom-cursor { transform: translate(-50%, -50%) scale(1.7); }
+        body.cursor-hovering #custom-cursor .cursor-ring { transform: scale(1.02); border-color: var(--accent); box-shadow: 0 0 20px rgba(255,107,255,0.12), -6px 0 16px rgba(107,255,222,0.08); }
+        
+        /* Alternate: block cursor mode (keyboard toggle with 'C') */
+        body.cursor-mode-block #custom-cursor { width: 26px; height: 22px; transform: translate(-50%, -50%) scale(1); }
+        body.cursor-mode-block #custom-cursor .cursor-ring { border-radius: 4px; border: none; background: #ffffff; box-shadow: -6px 0 10px rgba(255,107,255,0.12), 6px 0 10px rgba(107,255,222,0.12); transform: none; opacity: 0.95; }
+        body.cursor-mode-block #custom-cursor .cursor-dot { display: none; }
+        body.cursor-mode-block.cursor-hovering #custom-cursor { transform: translate(-50%, -50%) scale(1.5); }
+        body.cursor-mode-block.cursor-hovering #custom-cursor .cursor-ring { box-shadow: -8px 0 16px rgba(255,107,255,0.18), 8px 0 16px rgba(107,255,222,0.18); }
+
+        #custom-cursor.clicking .cursor-ring { animation: cursorClick 420ms ease; }
+        @keyframes cursorClick { 0% { transform: scale(0.9); opacity: 1 } 50% { transform: scale(1.9); opacity: 0.6 } 100% { transform: scale(1); opacity: 1 } }
+        @media (prefers-reduced-motion: reduce){
+            #custom-cursor, body.has-custom-cursor { display: none !important; }
+        }
+        .title-space { display:inline-block; width: 0.35ch; }
+        .title-letter { display:inline-block; transition: transform 520ms cubic-bezier(0.2,0.9,0.28,1), opacity 360ms ease, text-shadow 420ms ease; transform-origin: 50% 60%; transform-style: preserve-3d; backface-visibility: hidden; will-change: transform, opacity; vertical-align: middle; overflow: hidden; }
+        .title-letter.letter-enter { transform: rotateX(80deg) translateY(18px) translateZ(6px) scale(0.985); opacity: 0; }
+        .title-letter.letter-exit { transform: rotateX(-30deg) translateY(-20px) translateZ(-2px) scale(0.98); opacity: 0; }
+        .title-letter.glow { text-shadow: 0 0 10px rgba(255,0,255,0.25), 0 0 10px rgba(0,255,255,0.25); }
+        /* Refined Terminal Decode Effect */
+        .title-letter.decoding { color: transparent; opacity: 0; transition: none; font-family: 'JetBrains Mono', monospace; position: relative; }
+        .title-letter.decoding.active { color: #fff; opacity: 1; text-shadow: -1.5px 0 0 #ff00ff, 1.5px 0 0 #00ffff, 0 0 6px rgba(255,255,255,0.8); }
+        /* The glitchy terminal block cursor */
+        .title-letter.has-cursor::after { 
+            content: ''; 
+            position: absolute; 
+            inset: 0; 
+            background: #fff; 
+            box-shadow: -2px 0 0 #ff00ff, 2px 0 0 #00ffff; 
+            z-index: 1; 
+            animation: blinkGlitch 80ms infinite;
+        }
+        .title-letter.settled { transform: none; text-shadow: none; opacity: 1; color: inherit; transition: color 200ms ease; }
+        @keyframes blinkGlitch { 
+            0%, 100% { opacity: 1; transform: translateX(0); } 
+            50% { opacity: 0.8; transform: translateX(1px); } 
+        }
+        
+        @media (max-width: 640px) {
+            .title-word { margin-right: 0.25ch; }
+            .title-space { width: 0.25ch; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .title-letter { transition: none !important; }
+            .title-letter.letter-enter, .title-letter.letter-exit { transform: none !important; opacity: 1 !important; }
+        }
+
+        /* Dev title controls removed (production) */
+
+        /* Glitch effect layers */
+        .title-glitch { position: relative; display:inline-block; }
+        .title-glitch .glitch-layer { position:absolute; top:0; left:0; right:0; bottom:0; pointer-events:none; mix-blend-mode: screen; opacity:0; }
+        .glitch-layer.layer-r { color: rgba(255,0,0,0.85); transform: translateX(-6px) translateY(0); }
+        .glitch-layer.layer-g { color: rgba(0,255,136,0.85); transform: translateX(6px) translateY(0); }
+        .glitch-animate .glitch-layer { animation: glitch-anim 420ms cubic-bezier(0.2,0.9,0.28,1) forwards; }
+        @keyframes glitch-anim { 0% { opacity:1; transform: translateX(6px) skewX(-6deg) scale(1.02); } 60% { opacity:0.7; transform: translateX(-4px) skewX(3deg) scale(1.0); } 100% { opacity:0; transform: translateX(0) scale(1); } }
+
+        /* CRT style */
+        .title-crt { color:#b3ffb3; font-family: 'Courier Prime', monospace; letter-spacing:0.02em; text-shadow: 0 0 2px rgba(0,255,136,0.15); }
+        .crt-scanline { position:absolute; inset:0; background-image: linear-gradient(transparent 50%, rgba(0,0,0,0.06) 51%); background-size:100% 4px; pointer-events:none; mix-blend-mode: overlay; opacity:0.22; }
+
+        /* Particle canvas overlay */
+        .particle-layer { position:absolute; left:0; top:0; pointer-events:none; z-index:9999; }
+        .title-indicator { margin-top:8px; }
+        .title-hint { font-size:12px; color:var(--text-dim); margin-left:8px; }
+        
 
         /* Works Grid - Bento Box Layout */
         .work-bento {
@@ -591,15 +763,16 @@
 <body>
     <div class="bg-noise"></div>
 
-    <nav class="hud-nav">
-        <div class="logo-box">
-            <div class="logo-mark"></div>
-            <span class="logo-text mono">MIYANO</span>
-        </div>
+    <div class="site-logo" role="link" aria-label="Home">
+        <canvas class="logo-canvas" width="36" height="36" aria-hidden="true"></canvas>
+        <span class="logo-text mono">MIYANO</span>
+    </div>
+
+    <nav class="hud-nav" role="navigation" aria-label="Main menu">
         <div class="nav-links">
-            <a href="#" class="hud-link">About</a>
-            <a href="#work" class="hud-link">Work</a>
-            <a href="#contact" class="hud-link">Contact</a>
+            <a href="#" class="hud-link"><span class="hud-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2"/></svg></span><span class="hud-label">About</span></a>
+            <a href="#work" class="hud-link"><span class="hud-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M16 3h-8v4h8z"/></svg></span><span class="hud-label">Work</span></a>
+            <a href="#contact" class="hud-link"><span class="hud-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 8l8 6 8-6"/></svg></span><span class="hud-label">Contact</span></a>
         </div>
     </nav>
 
@@ -612,19 +785,15 @@
             </div>
             <div class="grid-container w-full relative z-10 pointer-events-none">
                 <div class="col-span-12 md:col-span-8 pointer-events-auto">
-                    <div class="badge mono">WHO?</div>
-                    <h1 class="hero-title">
-                        PRODUCT <br>
-                        DESIGN
-                    </h1>
-                    <p class="mt-6 text-neutral-200 max-w-lg text-lg leading-relaxed font-light">
-                        I turn complex problems into experiences people actually remember.
-                    </p>
-                    <p class="mt-4 text-neutral-500 max-w-md text-sm italic">
-                        Forget "delight". Let's build utility with soul.
-                    </p>
-                    <div class="mt-8">
-                        <a href="#work" class="inline-block bg-white text-black px-6 py-3 font-bold text-sm uppercase tracking-wide hover:bg-neutral-200 transition-colors">SEE WORK ↓</a>
+                    <div id="hero-copy" class="hero-copy">
+                        <div class="badge mono" id="hero-badge" aria-hidden="true" style="display:none;"></div>
+                        <h1 class="hero-title" id="hero-title">I make products easier to use and faster to grow.</h1>
+                        <p class="mt-6 text-neutral-200 max-w-lg text-lg leading-relaxed font-light" id="hero-sub">Product strategy • UX research • Interaction design • Cross-functional leadership</p>
+                        <p class="mt-4 text-neutral-500 max-w-md text-sm italic" id="hero-micro">Open to senior product & design roles.</p>
+                        <div class="mt-8">
+                            <a id="hero-cta" href="#work" class="inline-block bg-white text-black px-6 py-3 font-bold text-sm uppercase tracking-wide hover:bg-neutral-200 transition-colors">SEE WORK ↓</a>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -642,7 +811,7 @@
                 <div class="work-bento">
                     <!-- Featured: Algar (Large) -->
                     <article class="work-card featured" data-index="01">
-                        <div class="card-bg" style="background-image: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(5,5,5,0.8)), url('assets/algar/hero.png'); background-position: center 25%; background-size: cover; z-index: 1;"></div>
+                        <div class="card-bg" style="background-image: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(5,5,5,0.8)), url('assets/algar/thumb.svg'); background-position: center 25%; background-size: cover; z-index: 1;"></div>
                         <canvas class="card-3d-viz" data-shape="phone" style="position: absolute; inset: 0; z-index: 5; pointer-events: none;"></canvas>
                         <a href="cases/algar.html" class="card-link" style="position: relative; z-index: 10;">
                             <div class="card-index">01</div>
@@ -793,6 +962,7 @@
             const currentScrollY = window.scrollY;
             const scrollingDown = currentScrollY > lastScrollY;
             const scrollingUp = currentScrollY < lastScrollY;
+            const wasHidden = nav.classList.contains('nav-hidden');
 
             // Hide when scrolling down, show when scrolling up
             if (scrollingDown && currentScrollY > 100) {
@@ -804,6 +974,12 @@
             // Always show at very top
             if (currentScrollY < 50) {
                 nav.classList.remove('nav-hidden');
+            }
+
+            const isHidden = nav.classList.contains('nav-hidden');
+            if (wasHidden !== isHidden) {
+                // notify other scripts (logo alignment) that nav changed
+                window.dispatchEvent(new Event('nav-change'));
             }
 
             lastScrollY = currentScrollY;
@@ -853,12 +1029,49 @@
         // 3D Particle Visualizations on Work Cards
         (function init3DViz() {
             console.log('Initializing 3D visualizations...');
+            // Global sampling probability: lower = fewer dots (0..1)
+            const SAMPLE_RATE = 0.25;
+
+            // Stratified per-cell sampler to avoid holes while keeping low density
+            function stratifiedSample(candidates, cellSize, sampleRate, minPerCell = 1, maxTotal = 10000) {
+                const cells = new Map();
+                for (const p of candidates) {
+                    const cx = Math.floor(p[0] / cellSize);
+                    const cy = Math.floor(p[1] / cellSize);
+                    const cz = Math.floor(p[2] / cellSize);
+                    const key = `${cx}|${cy}|${cz}`;
+                    if (!cells.has(key)) cells.set(key, []);
+                    cells.get(key).push(p);
+                }
+                const result = [];
+                for (const pts of cells.values()) {
+                    const k = Math.max(minPerCell, Math.round(sampleRate * pts.length));
+                    // shuffle and take up to k
+                    for (let i = pts.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [pts[i], pts[j]] = [pts[j], pts[i]];
+                    }
+                    const take = Math.min(k, pts.length);
+                    for (let i = 0; i < take; i++) result.push(pts[i]);
+                    if (result.length >= maxTotal) break;
+                }
+                // If still too many, sample down uniformly
+                if (result.length > maxTotal) {
+                    for (let i = result.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [result[i], result[j]] = [result[j], result[i]];
+                    }
+                    return result.slice(0, maxTotal);
+                }
+                return result;
+            }
             
             // Helper: Generate phone shape as 3D points
             function generatePhonePoints() {
-                const points = [];
+                const candidates = [];
                 const w = 70, h = 140, d = 10, r = 12;
-                const density = 2.5;
+                // Aggressive low spacing for testing
+                const density = 1.0;
                 
                 // Front and Back faces with rounded corners
                 for (let x = -w/2; x <= w/2; x += density) {
@@ -878,19 +1091,20 @@
                             if (isScreen) {
                                 // Dynamic Island cutout
                                 const isIsland = Math.abs(x) < 12 && y > h/2 - 15 && y < h/2 - 10;
-                                if (!isIsland) points.push([x, y, d/2]);
+                                if (!isIsland) candidates.push([x, y, d/2]);
                             } else {
-                                points.push([x, y, d/2]);
+                                // Reduce bezel density with sampling
+                                if (Math.random() < SAMPLE_RATE) candidates.push([x, y, d/2]);
                             }
 
                             // Back face
                             const isCameraBump = x < -w/2 + 30 && y > h/2 - 40;
                             if (isCameraBump) {
-                                points.push([x, y, -d/2 - 2]); // Camera bump sticking out
+                                candidates.push([x, y, -d/2 - 2]); // Camera bump sticking out
                                 // Lenses
                                 const l1 = Math.pow(x - (-w/2 + 12), 2) + Math.pow(y - (h/2 - 12), 2) < 16;
                                 const l2 = Math.pow(x - (-w/2 + 12), 2) + Math.pow(y - (h/2 - 28), 2) < 16;
-                                if (l1 || l2) points.push([x, y, -d/2 - 4]);
+                                if (l1 || l2) candidates.push([x, y, -d/2 - 4]);
                             } else {
                                 // Algar Logo on the back
                                 const logoX = 0, logoY = -10, logoSize = 15;
@@ -899,9 +1113,9 @@
                                 const isLogoInner = Math.abs(x) < 2 && Math.abs(y - logoY) < logoSize;
                                 
                                 if (isLogo || isLogoInner) {
-                                    points.push([x, y, -d/2 - 1.5]);
+                                    candidates.push([x, y, -d/2 - 1.5]);
                                 } else {
-                                    if (Math.random() > 0.6) points.push([x, y, -d/2]);
+                                    if (Math.random() < SAMPLE_RATE) candidates.push([x, y, -d/2]);
                                 }
                             }
                         }
@@ -913,18 +1127,23 @@
                     const dy = Math.abs(y) - (h/2 - r);
                     const curX = dy > 0 ? (w/2 - r) + Math.sqrt(Math.max(0, r*r - dy*dy)) : w/2;
                     for (let z = -d/2; z <= d/2; z += density) {
-                        points.push([curX, y, z]);
-                        points.push([-curX, y, z]);
+                        // sample edges sparsely
+                        if (Math.random() < SAMPLE_RATE) {
+                            candidates.push([curX, y, z]);
+                            candidates.push([-curX, y, z]);
+                        }
                     }
                 }
                 
-                return points;
+                // Stratified sampling to avoid holes
+                return stratifiedSample(candidates, density, SAMPLE_RATE, 1, 2000);
             }
             
             // Helper: Generate realistic house shape
             function generateBuildingPoints() {
-                const points = [];
-                const density = 2.4;
+                const candidates = [];
+                // Aggressive low spacing for testing
+                const density = 1.0;
                 
                 const drawStructure = (xOff, yOff, zOff, w, h, d, hasRoof = true) => {
                     for (let x = -w/2; x <= w/2; x += density) {
@@ -943,7 +1162,7 @@
                                     const isWindow = (Math.abs(x) % 30 > 8 && Math.abs(x) % 30 < 22 && Math.abs(y) < 10);
                                     if (isWindow && !isDoor) continue;
 
-                                    points.push([x + xOff, y + yOff, z + zOff]);
+                                    if (Math.random() < SAMPLE_RATE) candidates.push([x + xOff, y + yOff, z + zOff]);
                                 }
                             }
                         }
@@ -953,10 +1172,10 @@
                         for (let z = -d/2 - 4; z <= d/2 + 4; z += density) {
                             for (let x = -w/2 - 4; x <= w/2 + 4; x += density) {
                                 const ry = h/2 + roofH * (1 - Math.abs(x) / (w/2 + 4));
-                                points.push([x + xOff, ry + yOff, z + zOff]);
+                                if (Math.random() < SAMPLE_RATE) candidates.push([x + xOff, ry + yOff, z + zOff]);
                                 if (Math.abs(z - d/2) < 1 || Math.abs(z + d/2) < 1) {
                                     for (let gy = h/2; gy < ry; gy += density) {
-                                        points.push([x + xOff, gy + yOff, z + zOff]);
+                                        if (Math.random() < SAMPLE_RATE) candidates.push([x + xOff, gy + yOff, z + zOff]);
                                     }
                                 }
                             }
@@ -971,18 +1190,20 @@
                 for (let x = -25; x < -15; x += density) {
                     for (let z = -25; z < -15; z += density) {
                         for (let y = 10; y < 65; y += density) {
-                            points.push([x, y, z]);
+                            candidates.push([x, y, z]);
                         }
                     }
                 }
                 
-                return points;
+                // Stratified sampling to avoid holes
+                return stratifiedSample(candidates, density, SAMPLE_RATE, 1, 3000);
             }
             
             // Helper: Generate realistic semi-truck shape
             function generateTruckPoints() {
-                const points = [];
-                const density = 2.2;
+                const candidates = [];
+                // Aggressive low spacing for testing
+                const density = 1.0;
                 
                 const drawPart = (xOff, yOff, zOff, w, h, d, options = {}) => {
                     for (let x = -w/2; x <= w/2; x += density) {
@@ -994,10 +1215,10 @@
                                 if (isSurface) {
                                     // Window cutout logic
                                     if (options.isCab && x < -w/2 + 2 && Math.abs(z) < d/2 - 4 && y > 0) {
-                                        if (Math.abs(z) > d/2 - 6 || y > h/2 - 3) points.push([x + xOff, y + yOff, z + zOff]);
+                                        if (Math.abs(z) > d/2 - 6 || y > h/2 - 3) candidates.push([x + xOff, y + yOff, z + zOff]);
                                         continue;
                                     }
-                                    if (Math.random() > 0.1) points.push([x + xOff, y + yOff, z + zOff]);
+                                    if (Math.random() < SAMPLE_RATE) candidates.push([x + xOff, y + yOff, z + zOff]);
                                 }
                             }
                         }
@@ -1006,44 +1227,47 @@
 
                 // Cab
                 drawPart(-45, -5, 0, 35, 50, 38, { isCab: true });
-                // Mirrors
+// Mirrors (sparser)
                 [1, -1].forEach(side => {
-                    for (let y = 0; y < 15; y += 3) points.push([-58, y, side * 22]);
+                    for (let y = 0; y < 15; y += 5) {
+                        if (Math.random() < SAMPLE_RATE) candidates.push([-58, y, side * 22]);
+                    }
                 });
-                // Exhausts
-                for (let y = -10; y < 45; y += 4) {
-                    points.push([-30, y, 16], [-30, y, -16]);
+                // Exhausts (sparser)
+                for (let y = -10; y < 45; y += 6) {
+                    if (Math.random() < SAMPLE_RATE) candidates.push([-30, y, 16], [-30, y, -16]);
                 }
 
                 // Cargo Trailer
                 drawPart(25, 5, 0, 100, 65, 42);
                 
-                // Chassis and Fuel Tanks
-                for (let x = -60; x < 65; x += 5) {
-                    points.push([x, -25, 12], [x, -25, -12]);
+                // Chassis and Fuel Tanks (sparser)
+                for (let x = -60; x < 65; x += 8) {
+                    if (Math.random() < SAMPLE_RATE) candidates.push([x, -25, 12], [x, -25, -12]);
                     if (x > -35 && x < -15) {
-                        for (let angle = 0; angle < Math.PI * 2; angle += 0.8) {
-                            points.push([x, -22 + Math.cos(angle)*8, 22 + Math.sin(angle)*8]);
-                            points.push([x, -22 + Math.cos(angle)*8, -22 - Math.sin(angle)*8]);
+                        for (let angle = 0; angle < Math.PI * 2; angle += 1.0) {
+                            if (Math.random() < SAMPLE_RATE) candidates.push([x, -22 + Math.cos(angle)*8, 22 + Math.sin(angle)*8]);
+                            if (Math.random() < SAMPLE_RATE) candidates.push([x, -22 + Math.cos(angle)*8, -22 - Math.sin(angle)*8]);
                         }
                     }
                 }
-
-                // 4 Wheels
+                
+                // 4 Wheels (sparser dz and angle steps)
                 const wheelPos = [[-55, -30], [50, -30]];
                 wheelPos.forEach(([wx, wy]) => {
                     for (let side = -1; side <= 1; side += 2) {
                         const zCenter = side * 24;
-                        for (let dz = -5; dz <= 5; dz += 2.5) {
-                            for (let angle = 0; angle < Math.PI * 2; angle += 0.4) {
+                        for (let dz = -5; dz <= 5; dz += 4) {
+                            for (let angle = 0; angle < Math.PI * 2; angle += 0.8) {
                                 const r = 13;
-                                points.push([wx + Math.cos(angle) * r, wy + Math.sin(angle) * r, zCenter + dz]);
+                                if (Math.random() < SAMPLE_RATE) candidates.push([wx + Math.cos(angle) * r, wy + Math.sin(angle) * r, zCenter + dz]);
                             }
                         }
                     }
                 });
                 
-                return points;
+                // Stratified sampling to avoid holes
+                return stratifiedSample(candidates, density, SAMPLE_RATE, 1, 3500);
             }
             
             // Create Three.js scene for each canvas
@@ -1142,14 +1366,23 @@
                                 ctxC.beginPath(); ctxC.arc(32, 32, 30, 0, Math.PI * 2);
                                 ctxC.fillStyle = '#ffffff'; ctxC.fill();
 
+                                const tex = new THREE.CanvasTexture(canvasCircle);
+                                tex.minFilter = THREE.LinearFilter;
+                                tex.magFilter = THREE.LinearFilter;
+                                tex.generateMipmaps = false;
+                                tex.premultiplyAlpha = true;
+                                tex.needsUpdate = true;
+
                                 const mat = new THREE.PointsMaterial({
-                                    size: shape === 'phone' ? 1.8 : 2.1,
-                                    map: new THREE.CanvasTexture(canvasCircle),
+                                    size: shape === 'phone' ? 1.6 : 1.9,
+                                    map: tex,
                                     color: 0x00ff88,
                                     transparent: true,
-                                    opacity: 0.9,
-                                    alphaTest: 0.05,
-                                    depthWrite: false
+                                    opacity: 0.75,
+                                    alphaTest: 0.02,
+                                    depthWrite: false,
+                                    depthTest: true,
+                                    blending: THREE.NormalBlending
                                 });
 
                                 const pts = new THREE.Points(geo, mat);
@@ -1212,7 +1445,13 @@
                             const ctxC = canvasCircle.getContext('2d');
                             ctxC.beginPath(); ctxC.arc(32, 32, 30, 0, Math.PI * 2);
                             ctxC.fillStyle = '#ffffff'; ctxC.fill();
-                            const mat = new THREE.PointsMaterial({ size: 2.8, map: new THREE.CanvasTexture(canvasCircle), color: 0x00ff88, transparent: true, opacity: 0.9, alphaTest: 0.05, depthWrite: false });
+                            const tex = new THREE.CanvasTexture(canvasCircle);
+                            tex.minFilter = THREE.LinearFilter;
+                            tex.magFilter = THREE.LinearFilter;
+                            tex.generateMipmaps = false;
+                            tex.premultiplyAlpha = true;
+                            tex.needsUpdate = true;
+                            const mat = new THREE.PointsMaterial({ size: 2.4, map: tex, color: 0x00ff88, transparent: true, opacity: 0.75, alphaTest: 0.02, depthWrite: false, depthTest: true, blending: THREE.NormalBlending });
                             const pts = new THREE.Points(geo, mat);
                             scene.add(pts);
                             callback(pts);
@@ -1401,9 +1640,9 @@
 
             function animate() {
                 requestAnimationFrame(animate);
-                // ALWAYS rotate to maintain momentum
-                group.rotation.y += 0.003;
-                group.rotation.z += 0.001;
+                // ALWAYS rotate to maintain momentum (slower)
+                group.rotation.y += 0.001;
+                group.rotation.z += 0.0003;
                 renderer.render(scene, camera);
             }
             animate();
@@ -2065,6 +2304,871 @@
 
         // Resize
         window.addEventListener('resize', updateSize);
+
+        // --- Logo Geometry Animation ---
+        const logoCanvas = document.querySelector('.logo-canvas');
+        if (logoCanvas) {
+            const logoRenderer = new THREE.WebGLRenderer({ canvas: logoCanvas, alpha: true, antialias: true });
+            logoRenderer.setSize(36, 36);
+            logoRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const logoScene = new THREE.Scene();
+            const logoCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+            logoCamera.position.z = 4;
+
+            // Soft lighting for subtle speculars
+            const la = new THREE.AmbientLight(0xffffff, 0.6);
+            logoScene.add(la);
+            const lp = new THREE.PointLight(0x00ff88, 0.6, 10);
+            lp.position.set(2, 2, 2);
+            logoScene.add(lp);
+
+            // Simple cube logo (restored)
+            const logoGeometry = new THREE.BoxGeometry(1, 1, 1);
+            const logoEdges = new THREE.EdgesGeometry(logoGeometry);
+            const logoMaterial = new THREE.LineBasicMaterial({ color: 0x00ff88, transparent: true, opacity: 0.95 });
+            const logoShape = new THREE.LineSegments(logoEdges, logoMaterial);
+            logoScene.add(logoShape);
+
+            // Inner faint cube for volume
+            const innerLogoGeometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);
+            const innerLogoMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff88, transparent: true, opacity: 0.08, metalness: 0.2, roughness: 0.6 });
+            const innerLogoCube = new THREE.Mesh(innerLogoGeometry, innerLogoMaterial);
+            logoScene.add(innerLogoCube);
+
+            // Scale down logo to fit beside content (increased slightly)
+            const LOGO_SCALE = 0.72;
+            logoShape.scale.set(LOGO_SCALE, LOGO_SCALE, LOGO_SCALE);
+            innerLogoCube.scale.set(LOGO_SCALE, LOGO_SCALE, LOGO_SCALE);
+
+            function animateLogo() {
+                const time = Date.now() * 0.001;
+                // Calm rotation
+                logoShape.rotation.x = time * 0.5;
+                logoShape.rotation.y = time * 0.7;
+                innerLogoCube.rotation.x = time * 0.5;
+                innerLogoCube.rotation.y = time * 0.7;
+
+                logoRenderer.render(logoScene, logoCamera);
+                requestAnimationFrame(animateLogo);
+            }
+            animateLogo();
+
+            // Align site logo with the page grid (keeps it visually in the left content column)
+            const siteLogoEl = document.querySelector('.site-logo');
+            const grid = document.querySelector('.grid-container');
+
+            // Ensure the logo is not nested inside the HUD (or any transformed ancestor).
+            // If it is, move it to document.body so it behaves relative to the document (page) instead of the viewport.
+            function separateLogoIfNeeded() {
+                if (!siteLogoEl) return;
+                const offendingAncestor = siteLogoEl.closest('.hud-nav, [style*="transform"], [style*="backdrop-filter"], [style*="will-change"]');
+                if (offendingAncestor && offendingAncestor !== document.body) {
+
+                    document.body.appendChild(siteLogoEl);
+                    // Use absolute positioning so the logo sits at a fixed document coordinate (scroll moves it along with page)
+                    siteLogoEl.style.position = 'absolute';
+                    siteLogoEl.style.zIndex = 10050;
+                }
+            }
+
+            // Locking: once the initial position is computed, keep the logo at the same document coordinate
+            // (so it stays at the beginning of the page and scroll will move it with the content)
+            let logoLocked = false;
+            function updateLogoAlignment() {
+                if (!siteLogoEl) return;
+                if (logoLocked) return; // already set
+
+                // Ensure logo is separated first
+                separateLogoIfNeeded();
+
+                // Compute horizontal (content left) alignment (document coordinates)
+                let leftViewport = 40;
+                if (grid) {
+                    const rect = grid.getBoundingClientRect();
+                    leftViewport = Math.max(12, Math.round(rect.left + 12));
+                }
+                const leftDoc = leftViewport + window.scrollX;
+                siteLogoEl.style.left = leftDoc + 'px';
+
+                // Compute document-top lock: capture current document-relative top and set absolute
+                const logoRect = siteLogoEl.getBoundingClientRect();
+                const docTop = Math.round(logoRect.top + window.scrollY);
+
+                // Set absolute document positioning and remove transitions
+                siteLogoEl.style.transition = 'none';
+                siteLogoEl.style.position = 'absolute';
+                siteLogoEl.style.top = docTop + 'px';
+
+                // Lock so future nav changes won't move the logo
+                logoLocked = true;
+
+            }
+            updateLogoAlignment();
+
+            // On resize we may need to update the *left* offset so the logo stays aligned with the content column
+            window.addEventListener('resize', () => {
+                if (!siteLogoEl) return;
+                const rect = grid ? grid.getBoundingClientRect() : null;
+                const leftViewport = rect ? Math.max(12, Math.round(rect.left + 12)) : 40;
+                const leftDoc = leftViewport + window.scrollX;
+                siteLogoEl.style.left = leftDoc + 'px';
+            });
+
+            // Logo stays fixed at its document start position; scrolling moves it with the page (no jitter)
+
+            // site-logo debug removed — observer/logging was noisy in console.
+
+            // Create nav indicator and entrance effects for links
+            const navLinks = Array.from(document.querySelectorAll('.hud-link'));
+            const indicator = document.createElement('div');
+            indicator.className = 'nav-indicator';
+            const navEl = document.querySelector('.hud-nav');
+            if (navEl) navEl.appendChild(indicator);
+
+            function updateIndicator(target) {
+                if (!target) { indicator.style.width = '0'; return; }
+                const rect = target.getBoundingClientRect();
+                const navRect = navEl.getBoundingClientRect();
+                const left = rect.left - navRect.left;
+                indicator.style.left = left + 'px';
+                indicator.style.width = rect.width + 'px';
+            }
+
+            // Ensure the logo re-aligns after the nav finishes animating (handles vertical translate)
+            if (navEl) {
+                navEl.addEventListener('transitionend', (e) => {
+                    // Only react to opacity/transform changes on the nav
+                    if (e.propertyName === 'transform' || e.propertyName === 'opacity') {
+                        // Only re-align when the logo is not locked (development / debugging mode)
+                        if (typeof logoLocked === 'undefined' || logoLocked === false) {
+                            updateLogoAlignment();
+                        }
+                    }
+                });
+            }
+
+            navLinks.forEach((link, i) => {
+                link.addEventListener('mouseenter', (e) => updateIndicator(e.target));
+                link.addEventListener('focus', (e) => updateIndicator(e.target));
+                link.addEventListener('mouseleave', () => { indicator.style.width = '0'; });
+                // entrance animation delay
+                setTimeout(() => {
+                    link.style.opacity = '1';
+                    link.style.transform = 'translateY(0)';
+                }, 80 * i);
+            });
+
+            window.addEventListener('resize', () => {
+                updateIndicator(document.querySelector('.hud-link:hover') || document.querySelector('.hud-link.active'));
+            });
+        }
+
+        // --- Nav Scroll Behavior ---
+        let lastScrollY = window.scrollY;
+        const nav = document.querySelector('.hud-nav');
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                // Scrolling down - hide nav
+                nav.classList.add('nav-hidden');
+            } else {
+                // Scrolling up or at top - show nav
+                nav.classList.remove('nav-hidden');
+            }
+            
+            lastScrollY = currentScrollY;
+        });
+    </script>
+
+    <script>
+        (function(){
+            const VAR_KEY = 'hero_ab_variant';
+            const variants = [
+                {
+                    id: 'short-human',
+                    badge: '',
+                    title: 'I make products easier to use and faster to grow.',
+                    sub: 'Product strategy • UX research • Interaction design • Cross-functional leadership',
+                    micro: 'Open to senior product & design roles.',
+                    cta: 'See work →'
+                },
+                {
+                    id: 'concise-action',
+                    badge: '',
+                    title: 'Product Design that ships impact',
+                    sub: 'I design product systems that increase conversion and retention for B2C apps.',
+                    micro: 'Available for senior roles & contract work.',
+                    cta: 'View case studies →'
+                },
+                {
+                    id: 'warm-narrative',
+                    badge: '',
+                    title: 'I help teams turn messy problems into clear products.',
+                    sub: 'Research-first product & interaction design. I focus on clarity, speed, and measurable outcomes.',
+                    micro: 'Let’s talk about senior & advisory roles.',
+                    cta: 'See impact →'
+                },
+                {
+                    id: 'metric-human',
+                    badge: '',
+                    title: 'I make UX improvements that move the needle.',
+                    sub: '1.9 → 3.0 app rating | -42% checkout friction. I solve the problems that move metrics.',
+                    micro: 'Portfolio + case studies inside.',
+                    cta: 'View impact →'
+                }
+            ];
+
+            function pickVariant() {
+                const url = new URL(window.location.href);
+                const q = url.searchParams.get('ab');
+                if (q) {
+                    const v = variants.find(x => x.id === q);
+                    if (v) {
+                        localStorage.setItem(VAR_KEY, v.id);
+                        console.log('A/B preview override to variant:', v.id);
+                        return v;
+                    }
+                }
+                const stored = localStorage.getItem(VAR_KEY);
+                if (stored) {
+                    const s = variants.find(x => x.id === stored);
+                    if (s) return s;
+                }
+                // Random assign with equal weights
+                const choice = variants[Math.floor(Math.random() * variants.length)];
+                localStorage.setItem(VAR_KEY, choice.id);
+                console.log('A/B assigned variant:', choice.id);
+                return choice;
+            }
+
+            function renderVariant(v) {
+                const b = document.getElementById('hero-badge');
+                const t = document.getElementById('hero-title');
+                const s = document.getElementById('hero-sub');
+                const m = document.getElementById('hero-micro');
+                const c = document.getElementById('hero-cta');
+                if (!t || !s || !m || !c) return;
+                // badge is optional; hide it when not provided
+                if (b) {
+                    if (v.badge) {
+                        b.textContent = v.badge;
+                        b.style.display = '';
+                        b.removeAttribute('aria-hidden');
+                    } else {
+                        b.textContent = '';
+                        b.style.display = 'none';
+                        b.setAttribute('aria-hidden', 'true');
+                    }
+                }
+                document.getElementById('hero-copy').setAttribute('data-ab-variant', v.id);
+            }
+
+            function animateVariantTransition(v) {
+                const container = document.getElementById('hero-copy');
+                if (!container) { renderVariant(v); return Promise.resolve(); }
+                if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    renderVariant(v);
+                    return Promise.resolve();
+                }
+                return new Promise(resolve => {
+                    container.classList.add('hero-fade-out');
+                    // allow CSS to animate
+                    setTimeout(() => {
+                        renderVariant(v);
+                        // trigger reflow and fade in
+                        void container.offsetWidth;
+                        container.classList.remove('hero-fade-out');
+                        container.classList.add('hero-fade-in');
+                        setTimeout(() => {
+                            container.classList.remove('hero-fade-in');
+                            resolve();
+                        }, 420);
+                    }, 260);
+                });
+            }
+
+            // Intro cycle removed: demo disabled. Variant cycling is manual via the 'V' hotkey.
+
+            // Render on DOM ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => { renderVariant(pickVariant());
+                    // One-time decoding demo on first visit
+
+                });
+            } else {
+                renderVariant(pickVariant());
+
+            }
+
+            // Keyboard quick-swap (dev): press V to cycle only the *titles* with a letter animation
+            (function devHotKeysAndTitleCycle(){
+                // Dev helper removed in production build (kept minimal stub)
+
+                // Helper: split text into word-wrapped spans with inner letter spans (prevents mid-word breaks)
+                function toSpannedHTML(text) {
+                    const inner = text.split(/(\s+)/).map(part => {
+                        if (/^\s+$/.test(part)) return '<span class="title-space">&nbsp;</span>';
+                        const letters = Array.from(part).map(ch => `<span class="title-letter">${ch}</span>`).join('');
+                        return `<span class="title-word">${letters}</span>`;
+                    }).join('');
+                    return `<span class="title-clip">${inner}</span>`;
+                }
+
+                // Original flip/glow animation renamed
+                function animateTitleFlipTo(nextTitle) {
+                    const el = document.getElementById('hero-title');
+                    if (!el) return Promise.resolve();
+                    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                        el.innerHTML = nextTitle.replace('\n','<br>');
+                        return Promise.resolve();
+                    }
+
+                    return new Promise(resolve => {
+                        // Ensure current title is spanned
+                        if (!el.querySelector('.title-letter')) {
+                            el.innerHTML = toSpannedHTML(el.textContent || '');
+                        }
+                        const currentLetters = Array.from(el.querySelectorAll('.title-letter'));
+                        // Exit animation staggered by letter
+                        currentLetters.forEach((span, i) => {
+                            setTimeout(() => span.classList.add('letter-exit'), i * 26);
+                        });
+
+                        // After exit, put new words/letters and animate them in with glow and word-group staggering
+                        const exitDuration = currentLetters.length * 26 + 240;
+                        setTimeout(() => {
+                            el.innerHTML = toSpannedHTML(nextTitle);
+                            const newLetters = Array.from(el.querySelectorAll('.title-letter'));
+                            // Start in 'enter' state
+                            newLetters.forEach(span => span.classList.add('letter-enter'));
+
+                            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                                // If reduced motion, just show text
+                                newLetters.forEach(span => span.classList.remove('letter-enter'));
+                                setTimeout(() => resolve(), 0);
+                                return;
+                            }
+
+                            // stagger remove of enter class and add a brief glow as letters appear
+                            let delay = 20;
+                            Array.from(el.querySelectorAll('.title-word')).forEach((word) => {
+                                const letters = Array.from(word.querySelectorAll('.title-letter'));
+                                letters.forEach((span, j) => {
+                                    setTimeout(() => {
+                                        span.classList.remove('letter-enter');
+                                        // quick glow on appearance
+                                        span.classList.add('glow');
+                                        setTimeout(() => span.classList.remove('glow'), 420);
+                                    }, delay + j * 22);
+                                });
+                                delay += letters.length * 22 + 48;
+                            });
+                            const enterDuration = delay + 240;
+                            setTimeout(() => resolve(), enterDuration);
+                        }, exitDuration);
+                    });
+                }
+
+                // Wrapper that dispatches to the selected effect
+                function animateTitleTo(nextTitle) {
+                    const effect = window._heroTitleEffect || localStorage.getItem('title_effect') || 'decode';
+                    switch(effect) {
+                        case 'glitch': return animateTitleGlitchTo(nextTitle);
+                        case 'slice': return animateTitleSliceTo(nextTitle);
+                        case 'particle': return animateTitleParticleTo(nextTitle);
+                        case 'crt': return animateTitleCRTTo(nextTitle);
+                        case 'decode': return animateTitleDecodeTo(nextTitle);
+                        case 'plain':
+                            document.getElementById('hero-title').innerHTML = nextTitle.replace('\n','<br>');
+                            return Promise.resolve();
+                        case 'flip':
+                        default: return animateTitleFlipTo(nextTitle);
+                    }
+                }
+
+                // ---- Glitch effect (simple layer-based) ----
+                function animateTitleGlitchTo(nextTitle) {
+                    const el = document.getElementById('hero-title');
+                    if (!el) return Promise.resolve();
+                    const container = el.parentElement;
+                    // create glitch layers
+                    const glitchWrap = document.createElement('span');
+                    glitchWrap.className = 'title-glitch';
+                    const base = el.cloneNode(true);
+                    const r = base.cloneNode(true);
+                    r.className = 'glitch-layer layer-r';
+                    const g = base.cloneNode(true);
+                    g.className = 'glitch-layer layer-g';
+                    glitchWrap.appendChild(base);
+                    glitchWrap.appendChild(r);
+                    glitchWrap.appendChild(g);
+                    // replace title with wrap
+                    container.replaceChild(glitchWrap, el);
+
+                    return new Promise(resolve => {
+                        // animate glitch then swap text
+                        glitchWrap.classList.add('glitch-animate');
+                        setTimeout(() => {
+                            base.innerHTML = nextTitle.replace('\n','<br>');
+                            r.innerHTML = base.innerHTML;
+                            g.innerHTML = base.innerHTML;
+                            // remove animation
+                            glitchWrap.classList.remove('glitch-animate');
+                            // unwrap: put base back into container
+                            container.replaceChild(base, glitchWrap);
+                            resolve();
+                        }, 420);
+                    });
+                }
+
+                // ---- Decoding / hacking style reveal (sequential letters) ----
+                async function animateTitleDecodeTo(nextTitle) {
+                    const el = document.getElementById('hero-title');
+                    if (!el) return Promise.resolve();
+                    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                        el.innerHTML = nextTitle.replace('\n','<br>');
+                        return Promise.resolve();
+                    }
+
+                    // A cleaner terminal-style charset
+                    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>[]/\\+=-_';
+
+                    // Build spanned HTML (preserve words)
+                    const words = nextTitle.split(/(\s+)/).map(part => {
+                        if (/^\s+$/.test(part)) return '<span class="title-space">&nbsp;</span>';
+                        const letters = Array.from(part).map(ch => `<span class="title-letter decoding">${charset.charAt(Math.floor(Math.random()*charset.length))}</span>`).join('');
+                        return `<span class="title-word">${letters}</span>`;
+                    }).join('');
+
+                    el.innerHTML = `<span class="title-clip">${words}</span>`;
+
+                    const letterSpans = Array.from(el.querySelectorAll('.title-letter'));
+                    // FIX: Filter out whitespace from finals so they map correctly to .title-letter spans
+                    const finals = Array.from(nextTitle).filter(ch => !/\s/.test(ch));
+
+                    // Map final characters to letter spans
+                    let fIdx = 0;
+                    const targets = letterSpans.map(() => finals[fIdx++] || '');
+
+                    // IMPORTANT: measure and lock each span width to the final character width so
+                    // random decoding characters cannot change layout or cause word breaks.
+                    await (async function lockLetterWidths(){
+                        // Ensure hero webfont is loaded to avoid measuring with a fallback font which
+                        // can yield different metrics and cause spacing issues on decode.
+                        try {
+                            const fontName = 'JetBrains Mono';
+                            if (document.fonts && !document.fonts.check(`1em "${fontName}"`)) {
+                                console.log('TITLE-DECODE-FONT: waiting for', fontName);
+                                await Promise.race([
+                                    document.fonts.load(`1em "${fontName}"`),
+                                    new Promise(res => setTimeout(res, 300))
+                                ]);
+                                console.log('TITLE-DECODE-FONT: ready?', document.fonts.check(`1em "${fontName}"`));
+                            } else {
+                                console.log('TITLE-DECODE-FONT: already available');
+                            }
+                        } catch(e) { console.warn('TITLE-DECODE-FONT: check failed', e); }
+
+                        // create a hidden measurement span matching the hero font
+                        const style = getComputedStyle(el);
+                        const font = style.font || 'bold 6vw JetBrains Mono, monospace';
+                        const lineH = style.lineHeight || '1';
+                        const letterSpacing = style.letterSpacing || 'normal';
+                        
+                        const meas = document.createElement('span');
+                        meas.style.position = 'absolute'; 
+                        meas.style.visibility = 'hidden'; 
+                        meas.style.whiteSpace = 'pre'; 
+                        meas.style.font = font; 
+                        meas.style.lineHeight = lineH;
+                        // Keep letter-spacing 'normal' during measurement to get the raw glyph width.
+                        // The parent's letter-spacing will then pull these inline-blocks together naturally.
+                        meas.style.letterSpacing = 'normal'; 
+                        document.body.appendChild(meas);
+
+                        // Ensure words don't break inside and preserve layout
+                        Array.from(el.querySelectorAll('.title-word')).forEach(w => {
+                            w.style.display = 'inline-block';
+                            w.style.whiteSpace = 'nowrap';
+                            w.style.verticalAlign = 'middle';
+                        });
+
+                        letterSpans.forEach((span, idx) => {
+                            const ch = targets[idx] || ' ';
+                            meas.textContent = ch;
+                            const rect = meas.getBoundingClientRect();
+                            const w = rect.width;
+                            
+                            // Use exact measured width and inline-block to preserve natural spacing/kerning.
+                            // We avoid padding and min-width padding which were disrupting the compressed look.
+                            span.style.display = 'inline-block';
+                            span.style.textAlign = 'center';
+                            span.style.width = w + 'px';
+                            span.style.lineHeight = lineH; 
+                            span.style.overflow = 'hidden'; 
+                            span.style.verticalAlign = 'middle';
+                            
+                            // record locked width for runtime diagnostics
+                            try { span._lockedWidth = w; } catch (e) { }
+                        });
+                        document.body.removeChild(meas);
+                        // diagnostic snapshot of locked widths
+                        try {
+                            const widths = letterSpans.slice(0,10).map(s => parseFloat(s.style.width) || s.getBoundingClientRect().width);
+                            const avg = Math.round(widths.reduce((a,b)=>a+b,0)/(widths.length||1));
+                            console.log('TITLE-DECODE-LOCKED', { count: letterSpans.length, sample: widths, avg });
+                        } catch(e) {}
+                    })();
+
+                    // Staggered overlapping decode with a "walking" cursor
+                    return new Promise(resolve => {
+                        let settled = 0;
+                        const stagger = 25; 
+
+                        letterSpans.forEach((span, i) => {
+                            const startDelay = i * stagger;
+                            setTimeout(() => {
+                                // The "walking" cursor: remove from all, add to this one.
+                                // Since they start in order, this keeps it at the "head" of the wave.
+                                letterSpans.forEach(s => s.classList.remove('has-cursor'));
+                                span.classList.add('active', 'has-cursor');
+                                
+                                // Increase steps so the "decode" scramble is actually visible
+                                let steps = 6 + Math.floor(Math.random() * 6);
+                                function tick() {
+                                    if (steps-- <= 0) {
+                                        span.classList.remove('decoding', 'active', 'has-cursor');
+                                        span.classList.add('settled');
+                                        span.textContent = targets[i] || '';
+                                        settled++;
+                                        if (settled === letterSpans.length) resolve();
+                                        return;
+                                    }
+
+                                    span.textContent = charset.charAt(Math.floor(Math.random() * charset.length));
+                                    setTimeout(tick, 20);
+                                }
+                                tick();
+                            }, startDelay);
+                        });
+
+                        // safety timeout
+                        setTimeout(() => { if (letterSpans.some(s=>s.classList.contains('decoding'))) resolve(); }, 4000);
+                    });
+                }
+
+                // ---- Slice effect (word-level masked slide) ----
+                function animateTitleSliceTo(nextTitle) {
+                    const el = document.getElementById('hero-title');
+                    if (!el) return Promise.resolve();
+                    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                        el.innerHTML = nextTitle.replace('\n','<br>');
+                        return Promise.resolve();
+                    }
+                    return new Promise(resolve => {
+                        // Transform each .title-word out and slide in new ones
+                        if (!el.querySelector('.title-word')) el.innerHTML = toSpannedHTML(el.textContent || '');
+                        const words = Array.from(el.querySelectorAll('.title-word'));
+                        words.forEach((w, i) => {
+                            w.style.transition = 'transform 380ms cubic-bezier(.2,.9,.3,1), opacity 300ms';
+                            w.style.transform = 'translateY(-20px) rotateX(-12deg)';
+                            w.style.opacity = '0';
+                        });
+                        const exitDur = 260;
+                        setTimeout(() => {
+                            el.innerHTML = toSpannedHTML(nextTitle);
+                            const newWords = Array.from(el.querySelectorAll('.title-word'));
+                            newWords.forEach((w, i) => {
+                                w.style.transform = 'translateY(18px) rotateX(30deg)';
+                                w.style.opacity = '0';
+                                setTimeout(() => {
+                                    w.style.transition = 'transform 420ms cubic-bezier(.2,.9,.3,1), opacity 360ms';
+                                    w.style.transform = 'translateY(0) rotateX(0)';
+                                    w.style.opacity = '1';
+                                }, i * 72);
+                            });
+                            setTimeout(() => resolve(), newWords.length * 72 + 440);
+                        }, exitDur);
+                    });
+                }
+
+                // ---- Particle morph (canvas-based) ----
+                function animateTitleParticleTo(nextTitle) {
+                    const el = document.getElementById('hero-title');
+                    if (!el) return Promise.resolve();
+                    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                        el.innerHTML = nextTitle.replace('\n','<br>');
+                        return Promise.resolve();
+                    }
+
+                    // basic particle morph implementation
+                    const rect = el.getBoundingClientRect();
+                    const canvas = document.createElement('canvas');
+                    canvas.className = 'particle-layer';
+                    canvas.width = Math.min(1024, Math.ceil(rect.width));
+                    canvas.height = Math.min(256, Math.ceil(rect.height));
+                    canvas.style.left = rect.left + 'px';
+                    canvas.style.top = (rect.top + window.scrollY) + 'px';
+                    document.body.appendChild(canvas);
+                    const ctx = canvas.getContext('2d');
+
+                    function sampleTextPoints(text) {
+                        const tmp = document.createElement('canvas');
+                        tmp.width = canvas.width; tmp.height = canvas.height;
+                        const tctx = tmp.getContext('2d');
+                        tctx.fillStyle = '#fff';
+                        const fs = Math.round(canvas.height * 0.72);
+                        tctx.font = `${fs}px JetBrains Mono, monospace`;
+                        tctx.textAlign = 'left';
+                        tctx.textBaseline = 'middle';
+                        tctx.clearRect(0,0,tmp.width,tmp.height);
+                        tctx.fillText(text, 0, tmp.height/2);
+                        const pts = [];
+                        const img = tctx.getImageData(0,0,tmp.width,tmp.height);
+                        for (let y = 0; y < tmp.height; y+=6) {
+                            for (let x = 0; x < tmp.width; x+=6) {
+                                const idx = (y*tmp.width + x) * 4 + 3;
+                                if (img.data[idx] > 128) pts.push({x, y});
+                            }
+                        }
+                        return pts;
+                    }
+
+                    const srcPoints = sampleTextPoints(el.textContent || '');
+                    const dstPoints = sampleTextPoints(nextTitle);
+                    const N = Math.min(srcPoints.length, dstPoints.length, 1200);
+                    const particles = [];
+                    for (let i = 0; i < N; i++) {
+                        const s = srcPoints[i % srcPoints.length];
+                        const d = dstPoints[i % dstPoints.length];
+                        particles.push({ x: s.x, y: s.y, tx: d.x, ty: d.y, vx: 0, vy: 0, life: 0 });
+                    }
+
+                    // hide title while animating
+                    const originalHTML = el.innerHTML;
+                    el.style.visibility = 'hidden';
+
+                    const start = performance.now();
+                    const dur = 920;
+                    function easeOutC(t){ return 1 - Math.pow(1-t, 3); }
+                    function tick(now) {
+                        const t = Math.min(1, (now - start) / dur);
+                        ctx.clearRect(0,0,canvas.width,canvas.height);
+                        for (let i = 0; i < particles.length; i++) {
+                            const p = particles[i];
+                            const ix = p.x + (p.tx - p.x) * easeOutC(t) + (Math.sin((i*7)+t*10)*6*(1-t));
+                            const iy = p.y + (p.ty - p.y) * easeOutC(t) + (Math.cos((i*11)+t*8)*4*(1-t));
+                            ctx.fillStyle = 'rgba(0,255,136,0.9)';
+                            ctx.beginPath(); ctx.arc(ix, iy, 1.5, 0, Math.PI*2); ctx.fill();
+                        }
+                        if (t < 1) requestAnimationFrame(tick); else {
+                            // done
+                            document.body.removeChild(canvas);
+                            el.innerHTML = nextTitle.replace('\n','<br>');
+                            el.style.visibility = '';
+                        }
+                    }
+                    return new Promise(resolve => {
+                        requestAnimationFrame(now => {
+                            tick(now);
+                            setTimeout(() => resolve(), dur + 80);
+                        });
+                    });
+                }
+
+                // ---- CRT type effect ----
+                function animateTitleCRTTo(nextTitle) {
+                    const el = document.getElementById('hero-title');
+                    if (!el) return Promise.resolve();
+                    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                        el.innerHTML = nextTitle.replace('\n','<br>');
+                        return Promise.resolve();
+                    }
+
+                    return new Promise(resolve => {
+                        el.classList.add('title-crt');
+                        const chars = Array.from(nextTitle);
+                        el.textContent = '';
+                        let i=0;
+                        function step(){
+                            if (i >= chars.length) { el.classList.remove('title-crt'); resolve(); return; }
+                            el.textContent += chars[i];
+                            // small flicker effect
+                            if (Math.random() < 0.12) el.style.opacity = '0.8'; else el.style.opacity = '1';
+                            i++;
+                            setTimeout(step, 40 + Math.random()*30);
+                        }
+                        step();
+                    });
+                }
+
+                // Production defaults: use decode and disable dev controls
+                window._heroTitleEffect = 'decode';
+
+                // --- Auto cycle (re-enabled) ---
+                const TITLE_KEY = 'hero_title_idx';
+                function getStoredIdx() { return parseInt(localStorage.getItem(TITLE_KEY) || '0', 10) || 0; }
+                let titleIdx = getStoredIdx();
+
+                async function cycleTitleStep() {
+                    try {
+                        titleIdx = (titleIdx + 1) % variants.length;
+                        localStorage.setItem(TITLE_KEY, String(titleIdx));
+                        console.log('AUTO: cycling to', titleIdx, variants[titleIdx].id);
+                        await animateTitleTo(variants[titleIdx].title);
+                    } catch (e) { console.warn('AUTO: cycle failed', e); }
+                }
+
+                const AUTO_CYCLE_MS = 5200;
+                let autoCycleRunning = false;
+
+                // Self-scheduling auto-cycle to avoid overlaps and make timing predictable
+                // Robust single-timer scheduler to avoid overlapping cycles
+                let autoCycleTimer = null;
+                function scheduleNextCycle() {
+                    // guard: reduced motion / opt-out
+                    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { console.log('AUTO: reduced-motion detected — disabled'); return; }
+                    if (localStorage.getItem('title_auto_cycle') === '0') { console.log('AUTO: user opt-out detected'); return; }
+
+                    // clear any existing timer just in case
+                    if (autoCycleTimer) {
+                        clearTimeout(autoCycleTimer);
+                        autoCycleTimer = null;
+                    }
+
+                    // schedule a single tick; after the animation completes we re-schedule
+                    autoCycleTimer = setTimeout(async () => {
+                        autoCycleTimer = null;
+                        try {
+                            await cycleTitleStep();
+                        } catch (e) { console.warn('AUTO: cycle failed', e); }
+
+                        // if still running, schedule the next one
+                        if (autoCycleRunning) scheduleNextCycle();
+                    }, AUTO_CYCLE_MS);
+                    console.log('AUTO: scheduled next in', AUTO_CYCLE_MS, 'ms');
+                }
+
+                function startAutoCycle() {
+                    if (autoCycleRunning) return;
+                    autoCycleRunning = true;
+                    console.log('AUTO: start');
+                    scheduleNextCycle();
+                }
+
+                function stopAutoCycle() {
+                    if (!autoCycleRunning && !autoCycleTimer) return;
+                    console.log('AUTO: stop');
+                    autoCycleRunning = false;
+                    if (autoCycleTimer) { clearTimeout(autoCycleTimer); autoCycleTimer = null; }
+                }
+
+                // Pause while hovering hero
+                const heroEl = document.getElementById('hero-copy');
+                if (heroEl) { heroEl.addEventListener('mouseenter', stopAutoCycle); heroEl.addEventListener('mouseleave', startAutoCycle); }
+
+                // Start
+                startAutoCycle();
+            })();
+        })();
+    </script>
+
+    <!-- Custom cursor element and behavior -->
+    <div id="custom-cursor" aria-hidden="true">
+        <div class="cursor-ring"></div>
+        <div class="cursor-dot"></div>
+    </div>
+    <script>
+    (function(){
+        try {
+            if ('ontouchstart' in window || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches)) return; // skip on touch
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; // respect user pref
+
+            const cursor = document.getElementById('custom-cursor');
+            if (!cursor) return;
+            document.body.classList.add('has-custom-cursor');
+
+            let raf = null;
+            let x = window.innerWidth / 2, y = window.innerHeight / 2;
+            let visible = false;
+
+            function render(){
+                cursor.style.left = x + 'px';
+                cursor.style.top = y + 'px';
+                raf = null;
+            }
+
+            function onPointerMove(e){
+                x = e.clientX; y = e.clientY;
+                if (!visible) { cursor.style.opacity = '1'; visible = true; }
+                if (!raf) raf = requestAnimationFrame(render);
+                scheduleHide();
+            }
+
+            // Hide on inactivity
+            let hideTimer = null;
+            function scheduleHide(){
+                if (hideTimer) clearTimeout(hideTimer);
+                hideTimer = setTimeout(() => { cursor.style.opacity = '0'; visible = false; }, 2500);
+            }
+
+            document.addEventListener('pointermove', onPointerMove, { passive: true });
+
+            // Hover interactions (links, buttons, CTAs)
+            const hoverSelector = 'a, button, [role="button"], input, .cta-row a, .hud-link';
+            document.addEventListener('pointerover', (e) => {
+                if (e.target && e.target.closest && e.target.closest(hoverSelector)) {
+                    document.body.classList.add('cursor-hovering');
+                }
+            });
+            document.addEventListener('pointerout', (e) => {
+                // if relatedTarget is inside a hoverable, keep hovering; otherwise remove
+                const rt = e.relatedTarget;
+                if (!rt || !rt.closest || !rt.closest(hoverSelector)) {
+                    document.body.classList.remove('cursor-hovering');
+                }
+            });
+
+            // Click ripple
+            document.addEventListener('pointerdown', (e) => {
+                cursor.classList.add('clicking');
+                setTimeout(()=> cursor.classList.remove('clicking'), 420);
+            });
+
+            // show default cursor when interacting with inputs
+            document.addEventListener('pointerdown', (e) => {
+                if (e.target && e.target.closest && e.target.closest('input,textarea,select')) {
+                    document.body.classList.remove('has-custom-cursor');
+                }
+            });
+            document.addEventListener('pointerup', () => { document.body.classList.add('has-custom-cursor'); });
+
+            // keyboard toggle: 'C' to cycle cursor modes (ring -> block -> ring)
+            function applyCursorMode(mode) {
+                document.body.classList.toggle('cursor-mode-block', mode === 'block');
+                try { localStorage.setItem('cursor_mode', mode); } catch(e){}
+                console.log('CURSOR: mode', mode);
+            }
+            const saved = (function(){ try { return localStorage.getItem('cursor_mode'); } catch(e){ return null } })();
+            if (saved === 'block') applyCursorMode('block');
+
+            window.addEventListener('keydown', (e) => {
+                // Ignore when typing
+                const tag = (document.activeElement && document.activeElement.tagName) || '';
+                if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.metaKey || e.ctrlKey || e.altKey) return;
+                if (e.key && e.key.toLowerCase() === 'c') {
+                    const isBlock = document.body.classList.toggle('cursor-mode-block');
+                    applyCursorMode(isBlock ? 'block' : 'ring');
+                }
+            });
+
+            // cleanup on pagehide
+            window.addEventListener('pagehide', ()=>{ document.body.classList.remove('has-custom-cursor'); });
+        } catch (e) { console.warn('CURSOR: init failed', e); }
+    })();
     </script>
 </body>
 </html>
