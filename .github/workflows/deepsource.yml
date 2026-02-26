@@ -1,0 +1,16 @@
+name: DeepSource analysis
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  analyzers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run DeepSource
+        uses: deepsourcelabs/github-action@v3
+          github_token: ${{ secrets.GITHUB_TOKEN }}
