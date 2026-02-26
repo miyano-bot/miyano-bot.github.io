@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion Store Catalog — Case Study</title>
+    <meta name="description" content="Case study do catálogo de moda com Next.js e Supabase: descoberta de produtos, coleções e operação administrativa escalável." />
+    <link rel="canonical" href="https://miyano-bot.github.io/cases/fashion-store-catalog.html" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Fashion Store Catalog — Case Study" />
+    <meta property="og:description" content="Arquitetura de catálogo e admin para evolução contínua em e-commerce de moda." />
+    <meta property="og:url" content="https://miyano-bot.github.io/cases/fashion-store-catalog.html" />
+    <meta property="og:image" content="https://miyano-bot.github.io/assets/volpi/thumb.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Fashion Store Catalog — Case Study" />
+    <meta name="twitter:description" content="Scalable catalog and admin architecture for fashion discovery experiences." />
+    <meta name="twitter:image" content="https://miyano-bot.github.io/assets/volpi/thumb.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --accent: #00ff88;
+            --accent-glow: rgba(0, 255, 136, 0.3);
+            --border: #222;
+            --text-main: #ffffff;
+            --text-dim: #888;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: #e5e5e5;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .bg-noise {
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            opacity: 0.05;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            mix-blend-mode: overlay;
+        }
+
+        .hud-nav { display: none; }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.2), transparent);
+            margin: 4rem 0;
+        }
+
+        .case-breadcrumb {
+            position: absolute;
+            top: 2rem;
+            left: 2.5rem;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono';
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .case-breadcrumb a {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .case-breadcrumb a:hover { color: var(--accent); }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden selection:bg-[#00ff88] selection:text-black">
+    <div class="case-breadcrumb">
+        <a href="../index.html#work">← Back to Projects</a>
+    </div>
+
+    <div class="bg-noise"></div>
+
+    <main class="relative z-10 pt-32">
+        <section class="max-w-7xl mx-auto px-6 mb-32">
+            <div class="inline-block border border-[var(--accent)]/30 px-3 py-1 mb-8 bg-[var(--accent)]/5">
+                <span class="mono text-[10px] text-[var(--accent)] uppercase tracking-widest font-bold">E-commerce • Catalog Platform • Admin + Search</span>
+            </div>
+
+            <h1 class="text-6xl md:text-8xl font-extrabold uppercase mb-12 leading-[0.85] tracking-tight" style="font-weight: 800;">
+                FASHION<br><span class="text-[var(--accent)]">CATALOG</span>
+            </h1>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div class="lg:col-span-8">
+                    <p class="text-2xl text-neutral-300 leading-tight mb-6">
+                        Catálogo digital para moda com foco em <span class="text-white font-semibold italic">descoberta de produtos, coleções e gestão administrativa</span>, conectando experiência pública e operação interna.
+                    </p>
+                    <div class="inline-flex items-center gap-3 px-4 py-2 border border-[var(--accent)]/20 bg-[var(--accent)]/5 rounded-sm">
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-[var(--accent)]"></span>
+                        <p class="text-sm font-medium text-[var(--accent)] mono uppercase tracking-tight">
+                            Arquitetura orientada a escala de catálogo e manutenção contínua.
+                        </p>
+                    </div>
+                </div>
+                <div class="lg:col-span-4 border-l border-white/10 pl-8">
+                    <div class="space-y-6">
+                        <div>
+                            <span class="mono text-[10px] text-neutral-500 uppercase block mb-1">Role</span>
+                            <span class="font-bold">Fullstack Product Builder</span>
+                        </div>
+                        <div>
+                            <span class="mono text-[10px] text-neutral-500 uppercase block mb-1">Stack</span>
+                            <span class="font-bold">Next.js, TypeScript, Tailwind, Supabase</span>
+                        </div>
+                        <div>
+                            <span class="mono text-[10px] text-neutral-500 uppercase block mb-1">Scope</span>
+                            <span class="font-bold">Public Catalog + Admin Panel</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="section-divider"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 py-24">
+                <div class="lg:col-span-4">
+                    <h2 class="mono text-[10px] text-[var(--accent)] uppercase tracking-[0.3em] mb-4">01 / OVERVIEW</h2>
+                    <h3 class="text-3xl font-black uppercase leading-none italic">Catálogo<br>Como Produto</h3>
+                </div>
+                <div class="lg:col-span-8 prose prose-invert">
+                    <p class="text-lg text-neutral-400 leading-relaxed mb-8">
+                        O projeto foi construído para permitir evolução rápida de sortimento sem quebrar consistência de navegação. A experiência prioriza busca e descoberta, enquanto o administrativo garante governança de conteúdo, coleções e itens em destaque.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-white/5 border border-white/5 p-8">
+                            <h4 class="mono text-[10px] text-white uppercase mb-4 tracking-widest">// Frentes Públicas</h4>
+                            <ul class="space-y-2 text-sm text-neutral-400">
+                                <li class="flex gap-3"><span>—</span> Home com curadoria visual</li>
+                                <li class="flex gap-3"><span>—</span> Busca com filtros avançados</li>
+                                <li class="flex gap-3"><span>—</span> Coleções e outlet por contexto</li>
+                                <li class="flex gap-3"><span>—</span> Página de produto com conteúdo rico</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white/5 border border-white/5 p-8">
+                            <h4 class="mono text-[10px] text-white uppercase mb-4 tracking-widest">// Frentes Internas</h4>
+                            <ul class="space-y-2 text-sm text-neutral-400">
+                                <li class="flex gap-3"><span>—</span> Painel administrativo de catálogo</li>
+                                <li class="flex gap-3"><span>—</span> Workflows de pendência e revisão</li>
+                                <li class="flex gap-3"><span>—</span> Migrações para evolução de schema</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 py-24">
+                <div class="lg:col-span-4">
+                    <h2 class="mono text-[10px] text-[var(--accent)] uppercase tracking-[0.3em] mb-4">02 / CHALLENGE</h2>
+                    <h3 class="text-3xl font-black uppercase leading-none italic">Escala de<br>Informação</h3>
+                </div>
+                <div class="lg:col-span-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                        <div class="p-6 border border-white/5 bg-white/[0.02]">
+                            <div class="text-[var(--accent)] mono text-xl mb-4">Navegação</div>
+                            <p class="text-sm text-neutral-500 leading-relaxed italic">Equilibrar clareza de categorias com liberdade para novas coleções e campanhas.</p>
+                        </div>
+                        <div class="p-6 border border-white/5 bg-white/[0.02]">
+                            <div class="text-[var(--accent)] mono text-xl mb-4">Qualidade de Dados</div>
+                            <p class="text-sm text-neutral-500 leading-relaxed italic">Padronizar informações de produtos para reduzir inconsistência na vitrine.</p>
+                        </div>
+                        <div class="p-6 border border-white/5 bg-white/[0.02]">
+                            <div class="text-[var(--accent)] mono text-xl mb-4">Performance de Busca</div>
+                            <p class="text-sm text-neutral-500 leading-relaxed italic">Responder rápido em consultas com múltiplos filtros sem degradar experiência.</p>
+                        </div>
+                        <div class="p-6 border border-white/5 bg-white/[0.02]">
+                            <div class="text-[var(--accent)] mono text-xl mb-4">Operação Admin</div>
+                            <p class="text-sm text-neutral-500 leading-relaxed italic">Permitir atualização frequente de catálogo sem depender de deploy para cada ajuste.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 py-24">
+                <div class="lg:col-span-4">
+                    <h2 class="mono text-[10px] text-[var(--accent)] uppercase tracking-[0.3em] mb-4">03 / SOLUTION</h2>
+                    <h3 class="text-3xl font-black uppercase leading-none italic">Arquitetura<br>Modular</h3>
+                </div>
+                <div class="lg:col-span-8 space-y-4">
+                    <div class="group border border-white/5 p-8 hover:bg-[var(--accent)]/[0.02] transition-colors">
+                        <h4 class="mono text-xs uppercase text-white mb-2 tracking-widest">Camada Pública Otimizada</h4>
+                        <p class="text-sm text-neutral-400">Páginas de catálogo, coleção, outlet e produto desenhadas para descoberta rápida e consistência visual.</p>
+                    </div>
+                    <div class="group border border-white/5 p-8 hover:bg-[var(--accent)]/[0.02] transition-colors">
+                        <h4 class="mono text-xs uppercase text-white mb-2 tracking-widest">Admin para Curadoria Contínua</h4>
+                        <p class="text-sm text-neutral-400">Fluxos internos para inclusão, edição e revisão de itens com menor dependência técnica.</p>
+                    </div>
+                    <div class="group border border-white/5 p-8 hover:bg-[var(--accent)]/[0.02] transition-colors">
+                        <h4 class="mono text-xs uppercase text-white mb-2 tracking-widest">Back-end Evolutivo</h4>
+                        <p class="text-sm text-neutral-400">Estrutura de dados em Supabase com migrações e ajustes incrementais para novos requisitos.</p>
+                    </div>
+                    <div class="group border border-white/5 p-8 hover:bg-[var(--accent)]/[0.02] transition-colors">
+                        <h4 class="mono text-xs uppercase text-white mb-2 tracking-widest">SEO + Compartilhamento</h4>
+                        <p class="text-sm text-neutral-400">Base para páginas indexáveis e melhor distribuição orgânica dos produtos e coleções.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 py-24">
+                <div class="lg:col-span-4">
+                    <h2 class="mono text-[10px] text-[var(--accent)] uppercase tracking-[0.3em] mb-4">04 / OUTCOME</h2>
+                    <h3 class="text-3xl font-black uppercase leading-none italic">Escala com<br>Controle</h3>
+                </div>
+                <div class="lg:col-span-8">
+                    <p class="text-lg text-neutral-400 leading-relaxed mb-10">
+                        O resultado é um catálogo mais fácil de evoluir: experiência de descoberta para clientes e operação de conteúdo mais previsível para o time. A separação clara entre camada pública e camada administrativa reduz custo de manutenção e acelera experimentação comercial.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div>
+                            <div class="text-5xl font-black text-white mb-2">+Agilidade</div>
+                            <div class="mono text-[10px] text-neutral-500 uppercase tracking-widest">Atualizações frequentes sem fricção</div>
+                        </div>
+                        <div>
+                            <div class="text-5xl font-black text-white mb-2">+Consistência</div>
+                            <div class="mono text-[10px] text-neutral-500 uppercase tracking-widest">Padrão de dados e apresentação</div>
+                        </div>
+                        <div>
+                            <div class="text-5xl font-black text-white mb-2">+Descoberta</div>
+                            <div class="mono text-[10px] text-neutral-500 uppercase tracking-widest">Navegação e busca mais objetivas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="border-t border-white/5 pt-24 pb-12 mt-24">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-end gap-12">
+            <div>
+                <span class="mono text-[10px] text-neutral-500 uppercase tracking-widest mb-4 block">Next Project</span>
+                <a href="algar.html" class="text-4xl md:text-6xl font-black uppercase hover:text-[var(--accent)] transition-colors tracking-tighter italic">ALGAR<br>TELECOM</a>
+            </div>
+            <a href="../index.html#work" class="mono text-[10px] uppercase tracking-[0.3em] text-neutral-500 hover:text-white transition-all pb-4">
+                Back to Index [05]
+            </a>
+        </div>
+    </footer>
+</body>
+</html>

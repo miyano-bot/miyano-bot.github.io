@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bowling Lane System — Case Study</title>
+    <meta name="description" content="Case study of a bowling lane system: scheduling, check-in, waitlist and tabs in a unified operational flow." />
+    <link rel="canonical" href="https://miyano-bot.github.io/cases/sistema-pistas-boliche.html" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Bowling Lane System — Case Study" />
+    <meta property="og:description" content="Operational product for bowling management focused on fluidity and predictability." />
+    <meta property="og:url" content="https://miyano-bot.github.io/cases/sistema-pistas-boliche.html" />
+    <meta property="og:image" content="https://miyano-bot.github.io/assets/algar/thumb.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Bowling Lane System — Case Study" />
+    <meta name="twitter:description" content="Bowling operations platform with unified scheduling, queue, check-in and tabs." />
+    <meta name="twitter:image" content="https://miyano-bot.github.io/assets/algar/thumb.svg" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --accent: #00ff88;
+            --accent-glow: rgba(0, 255, 136, 0.3);
+            --border: #222;
+            --text-main: #ffffff;
+            --text-dim: #888;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: #e5e5e5;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .bg-noise {
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            opacity: 0.05;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            mix-blend-mode: overlay;
+        }
+
+        .hud-nav { display: none; }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.2), transparent);
+            margin: 4rem 0;
+        }
+
+        .case-breadcrumb {
+            position: absolute;
+            top: 2rem;
+            left: 2.5rem;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono';
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .case-breadcrumb a {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .case-breadcrumb a:hover { color: var(--accent); }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden selection:bg-[#00ff88] selection:text-black">
+    <div class="case-breadcrumb">
+        <a href="../index.html#work">← Back to Projects</a>
+    </div>
+
+    <div class="bg-noise"></div>
+
+    <main class="relative z-10 pt-32">
+        <section class="max-w-7xl mx-auto px-6 mb-32">
+            <div class="inline-block border border-[var(--accent)]/30 px-3 py-1 mb-8 bg-[var(--accent)]/5">
+                <span class="mono text-[10px] text-[var(--accent)] uppercase tracking-widest font-bold">Operations • Bowling • SaaS Dashboard</span>
+            </div>
+
+            <h1 class="text-6xl md:text-8xl font-extrabold uppercase mb-12 leading-[0.85] tracking-tight" style="font-weight: 800;">
+                BOWLING LANE<br><span class="text-[var(--accent)]">SYSTEM</span>
+            </h1>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div class="lg:col-span-8">
+                    <p class="text-2xl text-neutral-300 leading-tight mb-6">
+                        Platform for bowling operations that integrates <span class="text-white font-semibold italic">scheduling, check-in, waitlist, tabs and alerts</span> in a single flow to reduce operational friction.
+                    </p>
+                    <div class="inline-flex items-center gap-3 px-4 py-2 border border-[var(--accent)]/20 bg-[var(--accent)]/5 rounded-sm">
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-[var(--accent)]"></span>
+                        <p class="text-sm font-medium text-[var(--accent)] mono uppercase tracking-tight">
+                            Focus on operational predictability and faster service response.
+                        </p>
+                    </div>
+                </div>
+                <div class="lg:col-span-4 border-l border-white/10 pl-8">
+                    <div class="space-y-6">
+                        <div>
+                            <span class="mono text-[10px] text-neutral-500 uppercase block mb-1">Role</span>
+                            <span class="font-bold">Product / UX + Frontend</span>
+                        </div>
+                        <div>
+                            <span class="mono text-[10px] text-neutral-500 uppercase block mb-1">Stack</span>
+                            <span class="font-bold">React, TypeScript, Vite, Supabase</span>
+                        </div>
+                        <div>
+                            <span class="mono text-[10px] text-neutral-500 uppercase block mb-1">Domain</span>
+                            <span class="font-bold">Bowling Lane Management</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="section-divider"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 py-24">
+                <div class="lg:col-span-4">
+                    <h2 class="mono text-[10px] text-[var(--accent)] uppercase tracking-[0.3em] mb-4">01 / CONTEXT</h2>
+                    <h3 class="text-3xl font-black uppercase leading-none italic">Real-Time<br>Operation</h3>
+                </div>
+                <div class="lg:col-span-8 prose prose-invert">
+                    <p class="text-lg text-neutral-400 leading-relaxed mb-8">
+                        The system was built to solve fragmentation across critical clubhouse steps: seating customers, lane control, tab-based consumption and urgent event communication. Previously, decisions relied on operational memory and multiple disconnected screens.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="bg-white/5 border border-white/5 p-8">
+                            <h4 class="mono text-[10px] text-white uppercase mb-4 tracking-widest">// Key Modules</h4>
+                            <ul class="space-y-2 text-sm text-neutral-400">
+                                <li class="flex gap-3"><span>—</span> Reservation schedule and lane occupancy</li>
+                                <li class="flex gap-3"><span>—</span> Check-in and customer confirmation</li>
+                                <li class="flex gap-3"><span>—</span> Waitlist with operational priority</li>
+                                <li class="flex gap-3"><span>—</span> Order and consumption management</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white/5 border border-white/5 p-8">
+                            <h4 class="mono text-[10px] text-white uppercase mb-4 tracking-widest">// Objetivo de Produto</h4>
+                            <ul class="space-y-2 text-sm text-neutral-400">
+                                <li class="flex gap-3"><span>—</span> Reduce manual context switching</li>
+                                <li class="flex gap-3"><span>—</span> Aumentar velocidade de atendimento</li>
+                                <li class="flex gap-3"><span>—</span> Melhorar visibilidade da operação</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 py-24">
+                <div class="lg:col-span-4">
+                    <h2 class="mono text-[10px] text-[var(--accent)] uppercase tracking-[0.3em] mb-4">02 / CHALLENGES</h2>
+                    <h3 class="text-3xl font-black uppercase leading-none italic">Coordenação<br>Sob Pressão</h3>
+                </div>
+                <div class="lg:col-span-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                        <div class="p-6 border border-white/5 bg-white/[0.02]">
+                            <div class="text-[var(--accent)] mono text-xl mb-4">Fila & Ocupação</div>
+                            <p class="text-sm text-neutral-500 leading-relaxed italic">Manter justiça na fila sem perder oportunidades de encaixe quando pistas liberam rapidamente.</p>
+                        </div>
+                        <div class="p-6 border border-white/5 bg-white/[0.02]">
+                            <div class="text-[var(--accent)] mono text-xl mb-4">Consumo & Comandas</div>
+                            <p class="text-sm text-neutral-500 leading-relaxed italic">Garantir rastreabilidade de consumo com baixa fricção para equipe de atendimento.</p>
+                        </div>
+                        <div class="p-6 border border-white/5 bg-white/[0.02]">
+                            <div class="text-[var(--accent)] mono text-xl mb-4">Alertas Operacionais</div>
+                            <p class="text-sm text-neutral-500 leading-relaxed italic">Notificar eventos críticos sem gerar ruído e fadiga para o time no pico do movimento.</p>
+                        </div>
+                        <div class="p-6 border border-white/5 bg-white/[0.02]">
+                            <div class="text-[var(--accent)] mono text-xl mb-4">Visão Unificada</div>
+                            <p class="text-sm text-neutral-500 leading-relaxed italic">Concentrar o status do centro em uma interface com leitura rápida para tomada de decisão.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 py-24">
+                <div class="lg:col-span-4">
+                    <h2 class="mono text-[10px] text-[var(--accent)] uppercase tracking-[0.3em] mb-4">03 / SOLUÇÃO</h2>
+                    <h3 class="text-3xl font-black uppercase leading-none italic">Fluxo Único<br>De Operação</h3>
+                </div>
+                <div class="lg:col-span-8 space-y-4">
+                    <div class="group border border-white/5 p-8 hover:bg-[var(--accent)]/[0.02] transition-colors">
+                        <h4 class="mono text-xs uppercase text-white mb-2 tracking-widest">Agenda + Espera Integradas</h4>
+                        <p class="text-sm text-neutral-400">Transição direta entre reserva, espera e alocação de pista, reduzindo retrabalho de cadastro.</p>
+                    </div>
+                    <div class="group border border-white/5 p-8 hover:bg-[var(--accent)]/[0.02] transition-colors">
+                        <h4 class="mono text-xs uppercase text-white mb-2 tracking-widest">Check-in Guiado</h4>
+                        <p class="text-sm text-neutral-400">Confirmação operacional com ações de próximo passo claras para manter ritmo de atendimento.</p>
+                    </div>
+                    <div class="group border border-white/5 p-8 hover:bg-[var(--accent)]/[0.02] transition-colors">
+                        <h4 class="mono text-xs uppercase text-white mb-2 tracking-widest">Comanda como Estado da Sessão</h4>
+                        <p class="text-sm text-neutral-400">Cada pista mantém contexto de consumo e movimentação financeira de forma consistente.</p>
+                    </div>
+                    <div class="group border border-white/5 p-8 hover:bg-[var(--accent)]/[0.02] transition-colors">
+                        <h4 class="mono text-xs uppercase text-white mb-2 tracking-widest">Painel de Insights e Alertas</h4>
+                        <p class="text-sm text-neutral-400">Sinais de operação priorizados por criticidade para apoiar decisões no turno.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 py-24">
+                <div class="lg:col-span-4">
+                    <h2 class="mono text-[10px] text-[var(--accent)] uppercase tracking-[0.3em] mb-4">04 / IMPACTO</h2>
+                    <h3 class="text-3xl font-black uppercase leading-none italic">Eficiência<br>Operacional</h3>
+                </div>
+                <div class="lg:col-span-8">
+                    <p class="text-lg text-neutral-400 leading-relaxed mb-10">
+                        O produto foi desenhado para transformar uma operação reativa em um fluxo previsível. O principal ganho está na centralização de decisões: menos troca de contexto, mais consistência na execução da equipe e melhor experiência para clientes em dias de alta demanda.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div>
+                            <div class="text-5xl font-black text-white mb-2">+Visibilidade</div>
+                            <div class="mono text-[10px] text-neutral-500 uppercase tracking-widest">Status de pista e fila em tempo real</div>
+                        </div>
+                        <div>
+                            <div class="text-5xl font-black text-white mb-2">-Atrito</div>
+                            <div class="mono text-[10px] text-neutral-500 uppercase tracking-widest">Menos etapas manuais no atendimento</div>
+                        </div>
+                        <div>
+                            <div class="text-5xl font-black text-white mb-2">+Ritmo</div>
+                            <div class="mono text-[10px] text-neutral-500 uppercase tracking-widest">Operação mais fluida em horários de pico</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="border-t border-white/5 pt-24 pb-12 mt-24">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-end gap-12">
+            <div>
+                <span class="mono text-[10px] text-neutral-500 uppercase tracking-widest mb-4 block">Next Project</span>
+                <a href="fashion-store-catalog.html" class="text-4xl md:text-6xl font-black uppercase hover:text-[var(--accent)] transition-colors tracking-tighter italic">FASHION<br>CATALOG</a>
+            </div>
+            <a href="../index.html#work" class="mono text-[10px] uppercase tracking-[0.3em] text-neutral-500 hover:text-white transition-all pb-4">
+                Back to Index [05]
+            </a>
+        </div>
+    </footer>
+</body>
+</html>

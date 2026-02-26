@@ -3,260 +3,436 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Torre de Controle Logístico — Case Study</title>
+    <title>Torre de Controle — Case Study // MIYANO</title>
+    <meta name="description" content="Case study Torre de Controle: exception-first command center para logística com automação e monitoramento." />
+    <link rel="canonical" href="https://miyano-bot.github.io/cases/torre-controle.html" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Torre de Controle — Case Study" />
+    <meta property="og:description" content="Exception-first command center for logistics operators." />
+    <meta property="og:url" content="https://miyano-bot.github.io/cases/torre-controle.html" />
+    <meta property="og:image" content="https://miyano-bot.github.io/assets/torre/thumb.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Torre de Controle — Case Study" />
+    <meta name="twitter:description" content="Exception-first command center for logistics operators." />
+    <meta name="twitter:image" content="https://miyano-bot.github.io/assets/torre/thumb.svg" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #050505;
-            --accent: #00ff88;
-            --accent-glow: rgba(0, 255, 136, 0.3);
-            --border: #222;
-            --text-main: #ffffff;
-            --text-dim: #888;
+            --bg: #ffffff;
+            --surface: #f5f5f5;
+            --accent: #ff4d00;
+            --accent-glow: rgba(255, 77, 0, 0.3);
+            --text-main: #000000;
+            --text-dim: #666;
+            --border: #e0e0e0;
+            --font-main: 'Inter', sans-serif;
         }
-        
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: #e5e5e5;
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            overflow-x: hidden;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
-        
+
         .mono { font-family: 'JetBrains Mono', monospace; }
-        
+
         .bg-noise {
             position: fixed;
             inset: 0;
             z-index: 5;
-            opacity: 0.05;
+            opacity: 0.03;
             pointer-events: none;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-            mix-blend-mode: overlay;
+            mix-blend-mode: multiply;
         }
 
-        .hud-nav {
-            display: none;
-        }
-
-        /* Case Back Affordance */
         .case-breadcrumb {
-            position: absolute;
-            top: 2rem;
-            left: 2.5rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
             z-index: 9999;
-            display: flex;
+            padding: 1.5rem 2.5rem;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .case-breadcrumb a {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
-            font-family: 'JetBrains Mono';
+            gap: 6px;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.1em;
         }
 
-        .case-breadcrumb a {
-            color: rgba(255, 255, 255, 0.5);
-            text-decoration: none;
-            transition: color 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .case-breadcrumb a:hover { color: var(--accent); }
 
-        .case-breadcrumb a:hover {
+        .header-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
             color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
         }
 
-        .section-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.2), transparent);
-            margin: 4rem 0;
+        .evidence-callout {
+            border-left: 2px solid var(--accent);
+            padding-left: 1rem;
+            margin-top: 2rem;
+        }
+
+        .evidence-callout p { font-size: 0.875rem; line-height: 1.6; color: #444; }
+        .evidence-callout .tag {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-card {
+            padding: 2rem;
+            border: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .metric-card .value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--text-main);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-card .label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-dim);
+        }
+
+        .decision-card {
+            border: 1px solid var(--border);
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .decision-card:hover {
+            border-color: var(--accent);
+            background: rgba(255, 77, 0, 0.02);
+        }
+
+        /* Artifact Placeholder */
+        .artifact-placeholder {
+            width: 100%;
+            min-height: 300px;
+            background: repeating-linear-gradient(45deg, var(--surface), var(--surface) 10px, #fff 10px, #fff 20px);
+            border: 1px dashed var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            margin: 2.5rem 0;
+        }
+        .artifact-placeholder .tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .artifact-placeholder .desc {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            max-width: 400px;
+        }
+
+        footer {
+            padding: 80px 0 40px 0;
+            border-top: 1px solid var(--border);
+            background: var(--surface);
         }
     </style>
 </head>
-<body class="antialiased overflow-x-hidden selection:bg-[#00ff88] selection:text-black">
-    
-    <!-- Case Breadcrumb Navigation -->
+<body class="antialiased selection:bg-[#ff4d00]/20 selection:text-black">
+
     <div class="case-breadcrumb">
-        <a href="../index.html#work">← Back to Projects</a>
+        <a href="../v5-swiss-3d.html#work">← Back to Projects</a>
     </div>
 
     <div class="bg-noise"></div>
 
-    <main class="relative z-10 pt-32">
-        <!-- Hero Section -->
-        <section class="max-w-7xl mx-auto px-6 mb-32">
-            <div class="inline-block border border-[var(--accent)]/30 px-3 py-1 mb-8 bg-[var(--accent)]/5">
-                <span class="mono text-[10px] text-[var(--accent)] uppercase tracking-widest font-bold">Logistics • B2B Platform • Automation</span>
-            </div>
-            
-            <h1 class="text-6xl md:text-8xl font-extrabold uppercase mb-12 leading-[0.85] tracking-tight" style="font-weight: 800;">
-                TORRE DE<br>CONTROLE<br><span class="text-[var(--accent)]">LOGÍSTICO</span>
+    <main class="relative z-10 pt-28">
+
+        <!-- ─── Hero ─── -->
+        <section class="max-w-6xl mx-auto px-6 md:px-12 py-20">
+            <div class="header-tag">Logistics · B2B Platform · Automation</div>
+
+            <h1 class="text-5xl md:text-8xl font-black uppercase mb-8 leading-[0.85] tracking-tight">
+                TORRE DE<br><span class="text-[var(--accent)]">CONTROLE</span>
             </h1>
-            
+
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
                 <div class="lg:col-span-8">
-                    <p class="text-2xl text-neutral-300 leading-tight">
-                        Plataforma B2B que centraliza <span class="text-white font-semibold italic">monitoramento</span>, gestão e automação de fretes — conectando transportadoras, caminhoneiros e operação em um único fluxo infraestrutural.
+                    <p class="text-xl md:text-2xl text-neutral-600 leading-snug mb-6">
+                        Logistics operators were drowning in alerts. Critical delivery failures were buried under routine noise, causing cascading delays. We built an <strong class="text-black">exception-first command center</strong> that tells them exactly what's wrong and how to fix it.
+                    </p>
+                    <p class="text-sm text-neutral-400 leading-relaxed max-w-lg">
+                        By replacing fragmented dashboards with a unified operational model, we shifted the team from reactive firefighting to proactive resolution.
                     </p>
                 </div>
-                <div class="lg:col-span-4 border-l border-white/10 pl-8">
+                <div class="lg:col-span-4 border-l border-black/10 pl-8">
                     <div class="space-y-6">
                         <div>
-                            <span class="mono text-[10px] text-neutral-500 uppercase block mb-1">Role</span>
-                            <span class="font-bold">Lead Product Designer</span>
+                            <span class="mono text-[10px] text-neutral-400 uppercase block mb-1">Role</span>
+                            <span class="font-bold text-sm">Product Designer</span>
                         </div>
                         <div>
-                            <span class="mono text-[10px] text-neutral-500 uppercase block mb-1">Client</span>
-                            <span class="font-bold">AZ Ship</span>
+                            <span class="mono text-[10px] text-neutral-400 uppercase block mb-1">Duration</span>
+                            <span class="font-bold text-sm">6 Months</span>
                         </div>
                         <div>
-                            <span class="mono text-[10px] text-neutral-500 uppercase block mb-1">Focus</span>
-                            <span class="font-bold">RT monitoring & Dispatch</span>
+                            <span class="mono text-[10px] text-neutral-400 uppercase block mb-1">Context</span>
+                            <span class="font-bold text-sm">Logistics / B2B SaaS</span>
+                        </div>
+                        <div>
+                            <span class="mono text-[10px] text-neutral-400 uppercase block mb-1">Focus</span>
+                            <span class="font-bold text-sm">Incident Resolution & Ops</span>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Content Structure -->
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="section-divider"></div>
+        <div class="max-w-6xl mx-auto"><hr class="border-black/10"></div>
 
-            <!-- Overview -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 py-24">
+        <!-- ─── 01: The Chaos ─── -->
+        <section class="max-w-6xl mx-auto px-6 md:px-12 py-20">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
                 <div class="lg:col-span-4">
-                    <h2 class="mono text-[10px] text-[var(--accent)] uppercase tracking-[0.3em] mb-4">01 / OVERVIEW</h2>
-                    <h3 class="text-3xl font-black uppercase leading-none italic">The Ops<br>Backbone</h3>
-                </div>
-                <div class="lg:col-span-8 prose prose-invert">
-                    <p class="text-lg text-neutral-400 leading-relaxed">
-                        Atuei como designer responsável pela experiência e interface da primeira versão da plataforma, trabalhando em parceria com stakeholders e desenvolvedores. Liderei a síntese para decisões de produto, ideação, wireframes e protótipos de alta fidelidade, acompanhando o desenvolvimento até a entrega final.
-                    </p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
-                        <div class="bg-white/5 border border-white/5 p-8">
-                            <h4 class="mono text-[10px] text-white uppercase mb-4 tracking-widest">// Contributions</h4>
-                            <ul class="space-y-2 text-sm text-neutral-400">
-                                <li class="flex gap-3"><span>—</span> Information Architecture</li>
-                                <li class="flex gap-3"><span>—</span> High-fidelity Prototypes</li>
-                                <li class="flex gap-3"><span>—</span> Automation Workflow Modeling</li>
-                                <li class="flex gap-3"><span>—</span> Developer Handoff & QA</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white/5 border border-white/5 p-8">
-                            <h4 class="mono text-[10px] text-white uppercase mb-4 tracking-widest">// Highlights</h4>
-                            <ul class="space-y-2 text-sm text-neutral-400">
-                                <li class="flex gap-3"><span>—</span> Zero-latency Monitoring</li>
-                                <li class="flex gap-3"><span>—</span> Configurable Rule Engines</li>
-                                <li class="flex gap-3"><span>—</span> Exception-first Dashboard</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section-divider"></div>
-
-            <!-- The Problem -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 py-24">
-                <div class="lg:col-span-4">
-                    <h2 class="mono text-[10px] text-[var(--accent)] uppercase tracking-[0.3em] mb-4">02 / THE CHALLENGE</h2>
-                    <h3 class="text-3xl font-black uppercase leading-none italic">Fragmented<br>Visibility</h3>
+                    <span class="mono text-[11px] text-[var(--accent)] font-bold">01 //</span>
+                    <h2 class="text-2xl font-bold mt-2 mb-1">The Chaos</h2>
+                    <p class="mono text-[10px] uppercase text-neutral-400">What made this hard</p>
                 </div>
                 <div class="lg:col-span-8">
-                    <p class="text-xl text-neutral-300 mb-8 leading-tight">
-                        Antes da plataforma, a operação ficava refém de visibilidade fragmentada e decisões manuais: retrabalho, ruído e falta de previsibilidade quando algo fugia do normal. O sistema precisava ser "anti-caos".
+                    <p class="text-lg text-neutral-600 leading-relaxed mb-8">
+                        Logistics operators were flying blind. They relied on multiple disconnected tools to monitor deliveries, manage exceptions, and coordinate resolution. Critical alerts were buried under routine noise, and decisions that should take seconds were taking minutes — causing cascading downstream delays.
                     </p>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="p-6 border border-white/5 bg-white/[0.02]">
-                            <div class="text-[var(--accent)] mono text-xl mb-4">01</div>
-                            <p class="text-xs text-neutral-500 uppercase tracking-widest leading-relaxed">Alert Fatigue & Excessive Noise</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <div class="p-5 border border-black/10 bg-[var(--surface)]">
+                            <div class="text-[var(--accent)] mono text-sm font-bold mb-2">Signal Overload</div>
+                            <p class="text-sm text-neutral-500 leading-relaxed">Too many alerts, no hierarchy — operators couldn't distinguish critical from routine.</p>
                         </div>
-                        <div class="p-6 border border-white/5 bg-white/[0.02]">
-                            <div class="text-[var(--accent)] mono text-xl mb-4">02</div>
-                            <p class="text-xs text-neutral-500 uppercase tracking-widest leading-relaxed">Manual Incident Management</p>
+                        <div class="p-5 border border-black/10 bg-[var(--surface)]">
+                            <div class="text-[var(--accent)] mono text-sm font-bold mb-2">Fragmented Tools</div>
+                            <p class="text-sm text-neutral-500 leading-relaxed">Monitoring, dispatch, and resolution lived in different systems with no unified state.</p>
                         </div>
-                        <div class="p-6 border border-white/5 bg-white/[0.02]">
-                            <div class="text-[var(--accent)] mono text-xl mb-4">03</div>
-                            <p class="text-xs text-neutral-500 uppercase tracking-widest leading-relaxed">Lack of Standardized Responses</p>
+                        <div class="p-5 border border-black/10 bg-[var(--surface)]">
+                            <div class="text-[var(--accent)] mono text-sm font-bold mb-2">High Human Error</div>
+                            <p class="text-sm text-neutral-500 leading-relaxed">Manual coordination under pressure led to missed exceptions and delayed responses.</p>
                         </div>
+                    </div>
+
+                    <div class="artifact-placeholder">
+                        <span class="tag">Artifact: System Map / Operator Workflow</span>
+                        <p class="desc">Show a diagram of the fragmented tools operators were using, or a workflow map highlighting the bottlenecks and manual steps. This proves you understand the complexity of the problem space.</p>
+                    </div>
+
+                    <div class="evidence-callout">
+                        <span class="tag">↗ Evidence: Complexity → Clarity</span>
+                        <p>Reframed fragmented monitoring signals into one operational model, helping teams read status quickly and choose the next action with less coordination overhead.</p>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <div class="section-divider"></div>
+        <div class="max-w-6xl mx-auto"><hr class="border-black/10"></div>
 
-            <!-- Solution -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 py-24">
+        <!-- ─── 02: The System ─── -->
+        <section class="max-w-6xl mx-auto px-6 md:px-12 py-20">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
                 <div class="lg:col-span-4">
-                    <h2 class="mono text-[10px] text-[var(--accent)] uppercase tracking-[0.3em] mb-4">03 / THE SOLUTION</h2>
-                    <h3 class="text-3xl font-black uppercase leading-none italic">Intelligent<br>Automation</h3>
+                    <span class="mono text-[11px] text-[var(--accent)] font-bold">02 //</span>
+                    <h2 class="text-2xl font-bold mt-2 mb-1">The System</h2>
+                    <p class="mono text-[10px] uppercase text-neutral-400">Designing for exceptions</p>
                 </div>
                 <div class="lg:col-span-8">
-                    <p class="text-xl text-neutral-300 mb-12 leading-tight">
-                        Modelei fluxos onde um evento (ex.: atraso, divergência) dispara ações automáticas e só escala para humanos quando critérios de falha/tempo são atingidos.
+                    <p class="text-lg text-neutral-600 leading-relaxed mb-8">
+                        We threw away the traditional dashboard. Instead of showing everything, we designed an interface around what's wrong. Operators see only what needs action — everything else is suppressed by default.
                     </p>
-                    <div class="space-y-4">
-                        <div class="group border border-white/5 p-8 hover:bg-[var(--accent)]/[0.02] transition-colors">
-                            <h4 class="mono text-xs uppercase text-white mb-2 tracking-widest">Exception-First Design</h4>
-                            <p class="text-sm text-neutral-400">O dashboard prioriza o que fugiu do esperado, garantindo que o operador foque no que precisa de ação imediata.</p>
+
+                    <div class="artifact-placeholder">
+                        <span class="tag">Artifact: Exception-First UI / Wireframe</span>
+                        <p class="desc">Show a wireframe or high-fidelity screen of the new interface, specifically highlighting how routine noise is suppressed and critical alerts are surfaced. This proves your ability to design for focus.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+                        <div class="decision-card">
+                            <h4 class="mono text-xs uppercase text-black mb-2 tracking-widest font-bold">Exception-First Model</h4>
+                            <p class="text-sm text-neutral-500 leading-relaxed">Designed the interface around what's wrong, not what's normal. Operators see only what needs action — everything else is suppressed by default.</p>
                         </div>
-                        <div class="group border border-white/5 p-8 hover:bg-[var(--accent)]/[0.02] transition-colors">
-                            <h4 class="mono text-xs uppercase text-white mb-2 tracking-widest">Configurable Workflows</h4>
-                            <p class="text-sm text-neutral-400">Interface visual para configurar regras de automação adaptáveis a cada tipo de cliente e operação logística.</p>
+                        <div class="decision-card">
+                            <h4 class="mono text-xs uppercase text-black mb-2 tracking-widest font-bold">Configurable Workflows</h4>
+                            <p class="text-sm text-neutral-500 leading-relaxed">Each ops team could customize alert thresholds, escalation paths, and automation rules — preventing one-size-fits-all failures.</p>
                         </div>
-                        <div class="group border border-white/5 p-8 hover:bg-[var(--accent)]/[0.02] transition-colors">
-                            <h4 class="mono text-xs uppercase text-white mb-2 tracking-widest">Contextual Alerts</h4>
-                            <p class="text-sm text-neutral-400">Notificações direcionadas com histórico de decisões e rastreabilidade total (quem fez o quê e por quê).</p>
+                        <div class="decision-card">
+                            <h4 class="mono text-xs uppercase text-black mb-2 tracking-widest font-bold">Contextual Alerts</h4>
+                            <p class="text-sm text-neutral-500 leading-relaxed">Alerts carry context: what happened, what's at risk, suggested next action. Reduced decision time from minutes to seconds.</p>
                         </div>
+                        <div class="decision-card">
+                            <h4 class="mono text-xs uppercase text-black mb-2 tracking-widest font-bold">Automation Cues</h4>
+                            <p class="text-sm text-neutral-500 leading-relaxed">Surface opportunities for automation: "This exception was resolved the same way 60 times — automate it?" — turning patterns into rules.</p>
+                        </div>
+                    </div>
+
+                    <div class="border border-black/10 p-6 bg-[var(--surface)] mb-8">
+                        <p class="text-lg text-neutral-600 italic leading-snug">
+                            "Speed only matters when operators know what action to take. The system gives the context — humans make the call."
+                        </p>
+                        <p class="mono text-[10px] text-neutral-400 uppercase mt-3">Design Principle</p>
+                    </div>
+
+                    <div class="evidence-callout">
+                        <span class="tag">↗ Evidence: Trade-offs</span>
+                        <p>Prioritized exception-first workflows over broad dashboard polish in V1 — reducing noise and ensuring the ops team could act fast on critical incidents.</p>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <div class="section-divider"></div>
+        <div class="max-w-6xl mx-auto"><hr class="border-black/10"></div>
 
-            <!-- Impact -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 py-24">
+        <!-- ─── 03: The Resistance ─── -->
+        <section class="max-w-6xl mx-auto px-6 md:px-12 py-20">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
                 <div class="lg:col-span-4">
-                    <h2 class="mono text-[10px] text-[var(--accent)] uppercase tracking-[0.3em] mb-4">04 / IMPACT + METRICS</h2>
-                    <h3 class="text-3xl font-black uppercase leading-none italic">Operational<br>Efficacy</h3>
+                    <span class="mono text-[11px] text-[var(--accent)] font-bold">03 //</span>
+                    <h2 class="text-2xl font-bold mt-2 mb-1">The Resistance</h2>
+                    <p class="mono text-[10px] uppercase text-neutral-400">Building trust in automation</p>
                 </div>
                 <div class="lg:col-span-8">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div>
-                            <div class="text-5xl font-black text-white mb-2">-45%</div>
-                            <div class="mono text-[10px] text-neutral-500 uppercase tracking-widest">MTTR (Resolution Time)</div>
+                    <p class="text-lg text-neutral-600 leading-relaxed mb-8">
+                        Building a unified control center wasn't just a technical challenge; it was a cultural one. Operators were deeply skeptical of automation. They feared losing control.
+                    </p>
+
+                    <div class="space-y-6 mb-8">
+                        <div class="p-5 border border-black/10 bg-[var(--surface)]">
+                            <h4 class="mono text-xs uppercase text-black font-bold mb-2">Operator Trust Gap</h4>
+                            <p class="text-sm text-neutral-500 leading-relaxed">Operators were deeply skeptical of automation. Every automated action needed a visible audit trail and one-click override to maintain trust.</p>
                         </div>
-                        <div>
-                            <div class="text-5xl font-black text-white mb-2">60%</div>
-                            <div class="mono text-[10px] text-neutral-500 uppercase tracking-widest">Auto-Resolved Exceptions</div>
+                        <div class="p-5 border border-black/10 bg-[var(--surface)]">
+                            <h4 class="mono text-xs uppercase text-black font-bold mb-2">Cross-Org Alignment</h4>
+                            <p class="text-sm text-neutral-500 leading-relaxed">Dispatch, monitoring, and management each had contradictory success definitions. Required reframing KPIs around shared operational outcomes.</p>
                         </div>
-                        <div>
-                            <div class="text-5xl font-black text-white mb-2">-30%</div>
-                            <div class="mono text-[10px] text-neutral-500 uppercase tracking-widest">Human Error Reduction</div>
+                        <div class="p-5 border border-black/10 bg-[var(--surface)]">
+                            <h4 class="mono text-xs uppercase text-black font-bold mb-2">Real-Time Constraints</h4>
+                            <p class="text-sm text-neutral-500 leading-relaxed">Interface decisions had to account for sub-second data refresh cycles without causing visual noise or distraction — a unique interaction design challenge.</p>
                         </div>
                     </div>
-                    <p class="text-lg text-neutral-400 mt-12 leading-relaxed italic">
-                        "A Torre de Controle transformou a operação logística de reativa para proativa, liberando capital humano para casos de alta complexidade tecnológica."
-                    </p>
+
+                    <div class="artifact-placeholder">
+                        <span class="tag">Artifact: Audit Trail UI / Trust-Building Feature</span>
+                        <p class="desc">Show a specific UI component or interaction flow that was designed specifically to build trust with operators, such as an audit log or a one-click override button. This proves your empathy for the user's fears.</p>
+                    </div>
+
+                    <div class="evidence-callout">
+                        <span class="tag">↗ Evidence: Systems Thinking</span>
+                        <p>Aligned exception handling, dispatch priorities, and monitoring signals in one operational model, reducing reaction time and improving predictability under peak load.</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <div class="max-w-6xl mx-auto"><hr class="border-black/10"></div>
+
+        <!-- ─── 04: The Control ─── -->
+        <section class="max-w-6xl mx-auto px-6 md:px-12 py-20">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div class="lg:col-span-4">
+                    <span class="mono text-[11px] text-[var(--accent)] font-bold">04 //</span>
+                    <h2 class="text-2xl font-bold mt-2 mb-1">The Control</h2>
+                    <p class="mono text-[10px] uppercase text-neutral-400">Measurable outcomes</p>
+                </div>
+                <div class="lg:col-span-8">
+                    <p class="text-lg text-neutral-600 leading-relaxed mb-8">
+                        By giving operators context instead of just data, we drastically reduced reaction times. The system learned from their decisions, eventually automating 60% of routine exceptions.
+                    </p>
+
+                    <div class="artifact-placeholder">
+                        <span class="tag">Artifact: Final Dashboard / Impact Metrics</span>
+                        <p class="desc">Show a high-fidelity screenshot of the final command center in action, or a chart showing the reduction in MTTR and human error over time. This proves the tangible business impact of your work.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+                        <div class="metric-card">
+                            <div class="value">-45%</div>
+                            <div class="label">MTTR</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="value">60%</div>
+                            <div class="label">Auto-Resolved</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="value">-30%</div>
+                            <div class="label">Human Error</div>
+                        </div>
+                    </div>
+
+                    <div class="border border-black/10 p-6 bg-[var(--surface)]">
+                        <h4 class="mono text-xs text-[var(--accent)] uppercase mb-4 tracking-widest font-bold">This project demonstrates:</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm text-neutral-500">
+                            <p class="flex gap-3"><span class="text-[var(--accent)]">—</span> Designing real-time operational systems under pressure constraints</p>
+                            <p class="flex gap-3"><span class="text-[var(--accent)]">—</span> Building trust in automation through transparency and control</p>
+                            <p class="flex gap-3"><span class="text-[var(--accent)]">—</span> Exception-first thinking as a design framework</p>
+                            <p class="flex gap-3"><span class="text-[var(--accent)]">—</span> Systems thinking: aligning workflows across organizational boundaries</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <!-- Project Navigation -->
-    <footer class="border-t border-white/5 pt-24 pb-12 mt-24">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex flex-col md:flex-row justify-between items-end gap-12">
+    <!-- Footer -->
+    <footer>
+        <div class="max-w-6xl mx-auto px-6 md:px-12">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-12 mb-16">
                 <div>
-                    <span class="mono text-[10px] text-neutral-500 uppercase tracking-widest mb-4 block">Next Project</span>
-                    <a href="algar.html" class="text-6xl md:text-8xl font-black uppercase hover:text-[var(--accent)] transition-colors tracking-tighter italic">ALGAR<br>TELECOM</a>
+                    <span class="mono text-[10px] text-neutral-400 uppercase tracking-widest mb-4 block">Next Case</span>
+                    <a href="algar.html" class="text-4xl md:text-6xl font-black uppercase hover:text-[var(--accent)] transition-colors tracking-tighter">ALGAR TELECOM →</a>
                 </div>
-                <a href="../index.html" class="mono text-[10px] uppercase tracking-[0.3em] text-neutral-500 hover:text-white transition-all pb-4">
-                    Back to Index [04]
+                <a href="../v5-swiss-3d.html#work" class="mono text-[10px] uppercase tracking-[0.3em] text-neutral-400 hover:text-[var(--accent)] transition-all pb-2">
+                    Back to Index
                 </a>
+            </div>
+            <div class="border-t border-black/10 pt-8 flex flex-col md:flex-row justify-between mono text-[10px] uppercase text-neutral-400">
+                <p>© 2026 Miyano Bot Archive</p>
+                <div class="flex gap-8 mt-4 md:mt-0">
+                    <a href="https://www.linkedin.com/in/miyano/" class="hover:text-[var(--accent)]" target="_blank" rel="noopener">Linkedin /</a>
+                    <a href="mailto:hello@miyano.net" class="hover:text-[var(--accent)]">Email /</a>
+                </div>
             </div>
         </div>
     </footer>
