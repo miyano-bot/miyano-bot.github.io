@@ -147,7 +147,83 @@
             margin-top: 1rem;
         }
 
-        /* Artifact Placeholder */
+        /* Artifact figure for real images */
+        figure.artifact {
+            max-width: 800px;
+            margin: 2.5rem auto;
+            position: relative; /* needed for lens positioning */
+        }
+        figure.artifact img {
+            width: 100%;
+            display: block;
+            transition: box-shadow 0.3s ease;
+            cursor: zoom-in;
+        }
+        figure.artifact:hover img {
+            /* thin double outline to frame image */
+            outline: 2px solid var(--accent);
+            outline-offset: -4px;
+        }
+
+        /* lightbox modal (matched to homepage style) */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: rgba(250, 247, 244, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .lightbox.visible {
+            display: flex;
+            animation: modalFadeIn 0.22s ease forwards;
+        }
+        .lightbox .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            background: #fff;
+            border: 1px solid var(--accent);
+            padding: 1.5rem;
+            position: relative;
+            animation: modalSlideUp 0.24s cubic-bezier(0.19,1,0.22,1) forwards;
+        }
+        .lightbox .modal-content img {
+            width: 100%;
+            height: auto;
+        }
+        .lightbox .modal-close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            font-size: 1.75rem;
+            color: var(--accent);
+            opacity: 0.7;
+            cursor: pointer;
+        }
+        .lightbox .modal-close:hover {
+            opacity: 1;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes modalSlideUp {
+            from { transform: translateY(12px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+        figure.artifact figcaption {
+            margin-top: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--accent);
+            text-align: center;
+        }
+        /* legacy placeholder class kept for backup but not used */
         .artifact-placeholder {
             width: 100%;
             min-height: 300px;
@@ -337,7 +413,7 @@
             </div>
         </section>
 
-        <div class="max-w-6xl mx-auto"><hr class="border-black/10"></div>
+
 
         <!-- ─── 01: The Crisis ─── -->
         <section class="max-w-6xl mx-auto px-6 md:px-12 py-20">
@@ -371,10 +447,12 @@
                         </div>
                     </div>
 
-                    <div class="artifact-placeholder">
-                        <span class="tag">Artifact: Journey Map / Support Ticket Analysis</span>
-                        <p class="desc">Show a visual breakdown of where users were dropping off or a chart showing the spike in support tickets tied to specific app flows. This proves you didn't just guess the problem; you found it in the data.</p>
-                    </div>
+                    <figure class="artifact">
+                        <a href="../assets/algar/algar_journey_map.png" target="_blank" rel="noopener">
+                            <img src="../assets/algar/algar_journey_map.png" alt="Journey map showing drop‑off points and ticket spike" />
+                        </a>
+                        <figcaption>Journey Map</figcaption>
+                    </figure>
 
                     <div class="evidence-callout">
                         <span class="tag">↗ Evidence: Systems Thinking</span>
@@ -399,10 +477,12 @@
                         The initial brief was a visual redesign to make the app look modern. But a pretty app that crashes is still a broken app. I pushed back and advocated for a complete pivot: freeze all new features and focus entirely on fixing the core transactional flows.
                     </p>
 
-                    <div class="artifact-placeholder">
-                        <span class="tag">Artifact: Roadmap Pivot / Stakeholder Presentation Slide</span>
-                        <p class="desc">Show a before/after of the product roadmap, or a slide you used to convince stakeholders to stop the visual redesign and focus on stability. This proves your strategic influence and ability to push back.</p>
-                    </div>
+                    <figure class="artifact">
+                        <a href="../assets/algar/algar_roadmap_pivot (1).png" target="_blank" rel="noopener">
+                            <img src="../assets/algar/algar_roadmap_pivot (1).png" alt="Slide showing roadmap pivot" />
+                        </a>
+                        <figcaption>Roadmap Pivot Slide</figcaption>
+                    </figure>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
                         <div class="process-card">
@@ -450,10 +530,10 @@
                         <p class="text-neutral-500 text-sm leading-relaxed">No solution shipped without validation. Moderated remote usability testing sessions became a required step in development (Definition of Ready).</p>
                     </div>
 
-                    <div class="artifact-placeholder">
-                        <span class="tag">Artifact: Error State Handoff / Usability Test Findings</span>
-                        <p class="desc">Show a snippet of your handoff documentation detailing error states, or a summary of usability test findings that led to a specific design change. This proves your attention to detail and commitment to validation.</p>
-                    </div>
+                    <figure class="artifact">
+                        <img src="../assets/algar/algar_validation.png" alt="Validation findings chart and error state handoff" />
+                        <figcaption>Error State Handoff</figcaption>
+                    </figure>
 
                     <div class="evidence-callout">
                         <span class="tag">↗ Evidence: Technical Influence</span>
@@ -478,10 +558,7 @@
                         By fixing the foundation, we restored trust. Users could finally self-serve without errors, and the business saw an immediate drop in operational costs. The app transformed from a frustration generator into a reliable utility.
                     </p>
 
-                    <div class="artifact-placeholder">
-                        <span class="tag">Artifact: Final UI vs Legacy UI / Impact Dashboard</span>
-                        <p class="desc">Show a side-by-side comparison of the old, broken flow vs the new, stable flow, or a dashboard showing the drop in support tickets. This proves the tangible business impact of your work.</p>
-                    </div>
+
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
                         <div class="metric-card">
@@ -537,6 +614,26 @@
                 document.querySelector(this.getAttribute('href')).scrollIntoView({
                     behavior: 'smooth'
                 });
+            });
+        });
+
+        // lightbox logic (modal style)
+        const lightbox = document.createElement('div');
+        lightbox.className = 'lightbox';
+        lightbox.innerHTML = '<div class="modal-content"><span class="modal-close">&times;</span><img src="" alt="" /></div>';
+        document.body.appendChild(lightbox);
+        const lightboxImg = lightbox.querySelector('img');
+        lightbox.querySelector('.modal-close').addEventListener('click', () => {
+            lightbox.classList.remove('visible');
+        });
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) lightbox.classList.remove('visible');
+        });
+        document.querySelectorAll('figure.artifact a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                lightboxImg.src = this.href;
+                lightbox.classList.add('visible');
             });
         });
     </script>
